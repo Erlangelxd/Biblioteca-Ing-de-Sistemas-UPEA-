@@ -70,8 +70,6 @@ flask --app wsgi crear-usuario bibliotecaria  # pide la contraseña; rol adminis
 python run.py                                 # http://127.0.0.1:5000
 ```
 
-Atajo: `iniciar.bat` (Windows) o `./iniciar.sh` (Linux/macOS) crean el entorno, instalan dependencias, inicializan la base (si no existe), piden la contraseña del administrador y arrancan el servidor.
-
 > `flask --app wsgi init-db` es idempotente: crea las tablas que faltan y **no borra datos existentes**.
 
 ---
@@ -424,7 +422,6 @@ biblioteca_flask/
 ├── tests/test_app.py            # 28 pruebas automáticas
 ├── run.py                       # servidor de desarrollo
 ├── wsgi.py                      # punto de entrada para producción
-├── iniciar.sh / iniciar.bat     # instalación y arranque automáticos
 ├── requirements.txt
 └── .env.example
 ```
