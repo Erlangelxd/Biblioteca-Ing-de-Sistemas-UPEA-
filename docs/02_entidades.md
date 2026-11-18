@@ -1,6 +1,6 @@
 # 2. Entidades
 
-Cada entidad corresponde a una tabla de [01_esquema_base_datos.md](01_esquema_base_datos.md). Las reglas de negocio se aplican en `app/servicios.py`.
+Cada entidad corresponde a un modelo ORM de [`app/models/`](../app/models/) y a una tabla de [01_esquema_base_datos.md](01_esquema_base_datos.md). Las reglas de negocio se aplican en los servicios de [`app/services/`](../app/services/).
 
 | Entidad | Descripción | Atributos principales | Relaciones | Reglas de negocio |
 |---|---|---|---|---|

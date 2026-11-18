@@ -2,7 +2,7 @@
 
 **Biblioteca de Ingeniería de Sistemas — UPEA** · Ingeniería de Sistemas I (SIS-745) · Grupo 8
 
-Implementación en **Flask** del diseño del Capítulo III del proyecto. Base de datos **SQLite**, sin dependencias aparte de Flask. Permite registrar trabajos de grado y sus ejemplares, gestionar solicitantes, controlar préstamos internos y externos, y generar reportes de uso de la biblioteca.
+Implementación en **Flask** del diseño del Capítulo III del proyecto. Arquitectura **monolítica modular** con **SQLAlchemy** como ORM, **blueprints** por proceso y patrones creacionales (**Factory Method** y **Builder**). Base de datos **SQLite**. Permite registrar trabajos de grado y sus ejemplares, gestionar solicitantes, controlar préstamos internos y externos, y generar reportes de uso de la biblioteca.
 
 ---
 
@@ -48,11 +48,12 @@ Implementación en **Flask** del diseño del Capítulo III del proyecto. Base de
 | Lenguaje | Python 3.10 o superior |
 | Framework | Flask `>=3.0,<4` |
 | Base de datos | SQLite (archivo `instance/biblioteca.sqlite3`) |
-| Acceso a datos | `sqlite3` de la biblioteca estándar (sin ORM) |
+| ORM | Flask-SQLAlchemy `>=3.1,<4` sobre SQLAlchemy `>=2.0,<3` |
+| Arquitectura | Monolito modular: fábrica de aplicación, blueprints, servicios y modelos |
 | Frontend | Plantillas Jinja2 y CSS propio (`app/static/estilos.css`) |
 | Pruebas | `unittest` (28 pruebas) |
 
-Dependencias: solo `Flask` (ver [`requirements.txt`](requirements.txt)).
+Dependencias: `Flask`, `Flask-SQLAlchemy` y `SQLAlchemy` (ver [`requirements.txt`](requirements.txt)).
 
 ---
 
@@ -206,7 +207,7 @@ Todos los reportes se sirven en `/reportes/<clave>`, permiten **imprimir / guard
 | **Autorización** | Decoradores `login_requerido` y `admin_requerido` por rol. |
 | **CSRF** | Token en sesión verificado en cada POST. |
 | **Fuerza bruta** | 5 intentos fallidos bloquean 5 minutos por usuario + IP. |
-| **Integridad** | Claves foráneas (`PRAGMA foreign_keys=ON`), restricciones `CHECK`, índices únicos y transacciones `BEGIN IMMEDIATE`. |
+| **Integridad** | Claves foráneas activas (`PRAGMA foreign_keys=ON` en cada conexión), restricciones `CHECK`, índices únicos y transacciones gestionadas por SQLAlchemy (commit/rollback). |
 | **Sin duplicados** | Índice único `lower(titulo) + gestion` y un solo préstamo vigente por ejemplar (índice parcial único). |
 | **Cabeceras de seguridad** | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`. |
 | **Privacidad** | El catálogo público no expone datos personales de solicitantes. |
@@ -249,7 +250,7 @@ baja                                     (terminal, al dar de baja el trabajo)
 
 ## 10. Esquema de la base de datos
 
-Motor **SQLite**, un solo archivo (`instance/biblioteca.sqlite3`). El esquema ejecutable está en [`app/schema.sql`](app/schema.sql) y corresponde al modelo relacional del Capítulo III (Tabla 13). Diagrama E-R: [`docs/img/diagrama_er.png`](docs/img/diagrama_er.png).
+Motor **SQLite**, un solo archivo (`instance/biblioteca.sqlite3`). El esquema se define con los **modelos ORM** de [`app/models/`](app/models/) y se materializa con `db.create_all()` (comando `flask --app wsgi init-db`); corresponde al modelo relacional del Capítulo III (Tabla 13). Diagrama E-R: [`docs/img/diagrama_er.png`](docs/img/diagrama_er.png).
 
 ### 10.1 Diagrama entidad-relación
 
@@ -386,38 +387,58 @@ Diagrama de dependencias del préstamo: [`docs/img/dependencias_prestamo.png`](d
 ```
 biblioteca_flask/
 ├── app/
-│   ├── __init__.py          # application factory, blueprints, cabeceras, errores
-│   ├── auth.py              # RF01–RF02: sesión, usuarios y roles
-│   ├── trabajos.py          # RF03–RF07: trabajos de grado y ejemplares
-│   ├── solicitantes.py      # RF08: solicitantes
-│   ├── prestamos.py         # RF09–RF10: préstamos, devoluciones, comprobante
-│   ├── reportes.py          # RF11–RF20: reportes, impresión y CSV
-│   ├── servicios.py         # reglas de negocio (transacciones)
-│   ├── validacion.py        # validación de formularios
-│   ├── seguridad.py         # sesión, CSRF, intentos, decoradores
-│   ├── db.py                # conexión SQLite y comandos CLI
-│   ├── config.py            # configuración por variables de entorno
-│   ├── seed.py              # datos ficticios de demostración
-│   ├── schema.sql           # esquema de la base de datos
-│   ├── templates/           # vistas Jinja2
-│   └── static/estilos.css   # hoja de estilos
-├── docs/                    # documentación del Capítulo III y diagramas
-├── instance/                # base de datos, clave secreta y respaldos (no versionar)
-├── tests/test_app.py        # 28 pruebas automáticas
-├── run.py                   # servidor de desarrollo
-├── wsgi.py                  # punto de entrada para producción
-├── iniciar.sh / iniciar.bat # instalación y arranque automáticos
+│   ├── __init__.py              # Factory Method: create_app()
+│   ├── extensions.py            # db (SQLAlchemy), Base, norm() y PRAGMA de SQLite
+│   ├── config.py                # configuración por entorno (development/testing/production)
+│   ├── seguridad.py             # sesión, roles, CSRF y bloqueo por intentos
+│   ├── validacion.py            # validación de formularios
+│   ├── utilidades.py            # paginación, estado de trabajos y filtros de plantilla
+│   ├── cli.py                   # comandos init-db, crear-usuario, seed-demo, backup
+│   ├── seed.py                  # datos ficticios de demostración
+│   ├── domain/
+│   │   └── builders.py          # patrón Builder: TrabajoGradoBuilder
+│   ├── models/                  # entidades ORM
+│   │   ├── usuario.py
+│   │   ├── catalogo.py          # AreaTematica, Tutor, Autor
+│   │   ├── trabajo.py           # TrabajoGrado, Ejemplar, trabajo_autor
+│   │   ├── solicitante.py
+│   │   └── prestamo.py
+│   ├── services/                # reglas de negocio y consultas
+│   │   ├── base.py              # ErrorNegocio y transacciones
+│   │   ├── usuarios.py
+│   │   ├── trabajos.py
+│   │   ├── solicitantes.py
+│   │   ├── prestamos.py
+│   │   └── reportes.py          # RF11–RF19
+│   ├── blueprints/              # rutas por proceso
+│   │   ├── main/
+│   │   ├── auth/
+│   │   ├── trabajos/
+│   │   ├── solicitantes/
+│   │   ├── prestamos/
+│   │   └── reportes/
+│   ├── templates/               # vistas Jinja2
+│   └── static/estilos.css       # hoja de estilos
+├── docs/                        # documentación del Capítulo III y diagramas
+├── instance/                    # base de datos, clave secreta y respaldos (no versionar)
+├── tests/test_app.py            # 28 pruebas automáticas
+├── run.py                       # servidor de desarrollo
+├── wsgi.py                      # punto de entrada para producción
+├── iniciar.sh / iniciar.bat     # instalación y arranque automáticos
 ├── requirements.txt
 └── .env.example
 ```
 
-| Proceso del documento | Módulo |
-|---|---|
-| 1.0 Seguridad y usuarios | `app/auth.py`, `app/seguridad.py` |
-| 2.0 Trabajos de grado y ejemplares | `app/trabajos.py` |
-| 3.0 Solicitantes | `app/solicitantes.py` |
-| 4.0–5.0 Préstamos y devoluciones | `app/prestamos.py`, `app/servicios.py` |
-| 6.0 Reportes | `app/reportes.py` |
+| Proceso del documento | Blueprint | Servicio / modelo |
+|---|---|---|
+| 1.0 Seguridad y usuarios | `app/blueprints/auth/` | `app/services/usuarios.py`, `app/models/usuario.py` |
+| 2.0 Trabajos de grado y ejemplares | `app/blueprints/trabajos/` | `app/services/trabajos.py`, `app/domain/builders.py`, `app/models/trabajo.py` |
+| 3.0 Solicitantes | `app/blueprints/solicitantes/` | `app/services/solicitantes.py`, `app/models/solicitante.py` |
+| 4.0–5.0 Préstamos y devoluciones | `app/blueprints/prestamos/` | `app/services/prestamos.py`, `app/models/prestamo.py` |
+| 6.0 Reportes | `app/blueprints/reportes/` | `app/services/reportes.py` |
+| Inicio y catálogo público | `app/blueprints/main/` | `app/services/trabajos.py` |
+
+La arquitectura completa (capas, Factory Method, Builder y flujo de una petición) se describe en [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
 
 ---
 
@@ -428,6 +449,8 @@ python -m unittest discover -s tests -v
 ```
 
 Cubren, entre otros: login correcto/incorrecto, bloqueo por intentos, CSRF, hash de contraseñas, redirección abierta, permisos de consulta, alta/baja de usuarios, registro con ejemplares sin duplicados, búsqueda sin tildes, baja con préstamo vigente, flujo completo de préstamo y devolución, límite de externos, renovación única, préstamo vencido, doble préstamo vigente en base, los nueve reportes, catálogo público sin datos personales y cabeceras de seguridad.
+
+Las pruebas usan la fábrica con `create_app("testing", {...})`, crean el esquema con `db.create_all()` y preparan los datos con los modelos ORM.
 
 ---
 
@@ -472,6 +495,7 @@ También funciona con cualquier servidor WSGI (gunicorn, waitress, etc.) apuntan
 
 | Archivo | Contenido |
 |---|---|
+| [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Monolito modular, capas, Factory Method y Builder |
 | [`docs/01_esquema_base_datos.md`](docs/01_esquema_base_datos.md) | Tablas, claves, restricciones, índices y diagrama E-R |
 | [`docs/02_entidades.md`](docs/02_entidades.md) | Entidades, relaciones y reglas de negocio |
 | [`docs/03_funcionalidades.md`](docs/03_funcionalidades.md) | RF01–RF20 y RNF con su ruta, módulo y prueba |

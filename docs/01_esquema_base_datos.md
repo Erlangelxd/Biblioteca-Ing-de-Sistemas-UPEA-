@@ -1,6 +1,6 @@
 # 1. Esquema de la base de datos
 
-Motor: **SQLite** (un solo archivo, `instance/biblioteca.sqlite3`). El esquema ejecutable está en [`app/schema.sql`](../app/schema.sql) y se crea con `flask --app wsgi init-db`. Corresponde al modelo relacional final del Capítulo III (Tabla 13), con las diferencias listadas en [05_observaciones.md](05_observaciones.md).
+Motor: **SQLite** (un solo archivo, `instance/biblioteca.sqlite3`). El esquema se define con los **modelos ORM** de [`app/models/`](../app/models/) y se crea con `db.create_all()` mediante `flask --app wsgi init-db`. Corresponde al modelo relacional final del Capítulo III (Tabla 13), con las diferencias listadas en [05_observaciones.md](05_observaciones.md).
 
 ![Diagrama entidad-relación](img/diagrama_er.png)
 

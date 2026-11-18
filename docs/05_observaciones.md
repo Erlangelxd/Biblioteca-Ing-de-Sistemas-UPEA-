@@ -9,7 +9,9 @@
 6. **Seguridad adicional**: CSRF, bloqueo por intentos, cabeceras de seguridad, hash de contraseñas.
 
 ## 5.2 Decisión técnica
-Se usa **Flask con `sqlite3` de la biblioteca estándar** (sin ORM). Motivo: menos dependencias (solo Flask), consultas visibles y fáciles de explicar en la defensa. Si el docente exige ORM, el esquema se traslada directamente a Flask-SQLAlchemy.
+Se usa **Flask-SQLAlchemy** como ORM sobre SQLite, con una arquitectura **monolítica modular**: fábrica de aplicación (Factory Method), blueprints por proceso, capa de servicios para las reglas de negocio y modelos ORM como única fuente del esquema. El agregado «Trabajo de grado» se construye con el patrón **Builder** (`TrabajoGradoBuilder`), porque combina autores, área, tutor y ejemplares en una sola operación.
+
+Motivo: el ORM elimina SQL repetido, centraliza restricciones e índices en los modelos y facilita el mantenimiento, sin perder la claridad de un monolito para el tamaño del sistema. El detalle de la arquitectura está en [ARQUITECTURA.md](ARQUITECTURA.md).
 
 ## 5.3 Reglas supuestas (confirmar con la encargada)
 Préstamo externo de 7 días, máximo 2 externos vigentes por solicitante, 1 renovación, garantía CI/matrícula. Se cambian con variables de entorno sin tocar el código.
