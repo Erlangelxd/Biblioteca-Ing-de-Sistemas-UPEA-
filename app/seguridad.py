@@ -1,24 +1,25 @@
-"""Autenticación, roles (RF01, RF02), protección CSRF y bloqueo por intentos fallidos (RNF02, RNF12)."""
+"""Autenticación, roles, CSRF y bloqueo por intentos fallidos."""
 import secrets
 import time
 from functools import wraps
 
 from flask import abort, flash, g, redirect, request, session, url_for
 
-from .db import get_db
+from .extensions import db
+from .models import Usuario
 
-_intentos = {}   # {clave: [fallos, hasta_cuando]}  (en memoria; suficiente para un solo servidor)
+_intentos = {}  # {clave: [fallos, hasta_cuando]} (en memoria; suficiente para un servidor)
 
 
 def cargar_usuario():
     g.usuario = None
     id_usuario = session.get("id_usuario")
     if id_usuario:
-        fila = get_db().execute("SELECT id_usuario, nombre_usuario, rol FROM usuario WHERE id_usuario = ? AND activo = 1",
-                                (id_usuario,)).fetchone()
-        if fila is None:
+        usuario = db.session.get(Usuario, id_usuario)
+        if usuario is None or not usuario.activo:
             session.clear()
-        g.usuario = fila
+        else:
+            g.usuario = usuario
 
 
 def token_csrf():
@@ -36,24 +37,26 @@ def verificar_csrf():
 
 def login_requerido(vista):
     @wraps(vista)
-    def envoltura(*a, **k):
+    def envoltura(*args, **kwargs):
         if g.usuario is None:
             flash("Inicie sesión para continuar.", "error")
             return redirect(url_for("auth.login", next=request.full_path if request.method == "GET" else None))
-        return vista(*a, **k)
+        return vista(*args, **kwargs)
+
     return envoltura
 
 
 def admin_requerido(vista):
     @wraps(vista)
-    def envoltura(*a, **k):
+    def envoltura(*args, **kwargs):
         if g.usuario is None:
             flash("Inicie sesión para continuar.", "error")
             return redirect(url_for("auth.login"))
-        if g.usuario["rol"] != "administrador":
+        if g.usuario.rol != "administrador":
             flash("No tiene permiso para realizar esta acción.", "error")
             return redirect(url_for("main.inicio"))
-        return vista(*a, **k)
+        return vista(*args, **kwargs)
+
     return envoltura
 
 

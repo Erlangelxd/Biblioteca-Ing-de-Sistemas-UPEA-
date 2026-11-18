@@ -6,7 +6,7 @@ TIPOS_PRESTAMO = {"interno": "Interno (en sala)", "externo": "Externo (a domicil
 GARANTIAS = {"ci": "CI", "matricula": "Carnet de matrícula", "ninguna": "Ninguna"}
 TIPOS_SOLICITANTE = {"estudiante": "Estudiante", "docente": "Docente"}
 ESTADOS_EJEMPLAR = {"disponible": "Disponible", "en_consulta": "En consulta", "en_prestamo": "En préstamo", "baja": "De baja"}
-# Deben coincidir con el CHECK de trabajo_grado.gestion en schema.sql
+# Deben coincidir con el CHECK de gestion en app/models/trabajo.py
 GESTION_MIN = 1980
 GESTION_MAX = 2100
 
