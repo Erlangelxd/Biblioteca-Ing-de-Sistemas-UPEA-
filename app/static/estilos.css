@@ -1,0 +1,32 @@
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{margin:0;background:#f5f6fb;color:#222;font-size:14px}
+.top{background:#2b3a8c;color:#fff;padding:10px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.top b{font-size:16px}.top form{display:inline}.top button{background:none;border:1px solid #fff;color:#fff;border-radius:3px;padding:3px 10px;cursor:pointer}
+nav{background:#eef0fb;border-bottom:1px solid #ccd;padding:0 22px;display:flex;gap:6px;flex-wrap:wrap}
+nav a{padding:10px 14px;color:#2b3a8c;text-decoration:none;font-weight:bold;font-size:13px}
+nav a.activo,nav a:hover{border-bottom:3px solid #2b3a8c}
+main{max-width:1100px;margin:18px auto;background:#fff;padding:20px 26px;border-radius:6px;box-shadow:0 1px 3px #0002}
+h1{margin:0 0 14px;font-size:20px;color:#2b3a8c}h2{font-size:16px;color:#2b3a8c}
+label{display:block;font-size:12px;color:#555;margin:10px 0 3px}
+input,select,textarea{width:100%;padding:7px 8px;border:1px solid #99a;border-radius:3px;font-size:14px}
+input[type=checkbox]{width:auto}
+.btn,button.btn{display:inline-block;background:#2b3a8c;color:#fff;border:0;padding:8px 16px;border-radius:3px;text-decoration:none;cursor:pointer;font-size:13px;margin:10px 6px 0 0}
+.btn.g{background:#777}.btn.r{background:#c0392b}.btn.s{padding:3px 10px;margin:0;font-size:12px}
+table{border-collapse:collapse;width:100%;margin-top:10px}
+th{background:#2b3a8c;color:#fff;text-align:left;padding:7px 8px;font-size:12px}
+td{border-bottom:1px solid #ddd;padding:7px 8px;font-size:13px;vertical-align:top}
+.chip{padding:2px 9px;border-radius:10px;font-size:11px;color:#fff;white-space:nowrap}
+.ok,.disponible,.vigente{background:#2e8b57}.pr,.prestado{background:#d98200}.ve,.vencido{background:#c0392b}.na,.baja,.sin_ejemplares,.devuelto{background:#777}
+.fila{display:flex;gap:14px;flex-wrap:wrap}.fila>div{flex:1;min-width:170px}
+.tarjetas{display:flex;gap:14px;flex-wrap:wrap}
+.tarjeta{flex:1;min-width:170px;border:1px solid #ccd;border-radius:6px;padding:16px;text-align:center}
+.tarjeta b{display:block;font-size:30px;color:#2b3a8c}.tarjeta.rojo b{color:#c0392b}
+.mensajes{list-style:none;padding:0;margin:0 0 10px}
+.mensajes li{padding:9px 12px;border-radius:4px;margin-bottom:6px}
+.mensajes .success{background:#e3f4ea;color:#1d6b3f}.mensajes .error{background:#fdeaea;color:#a02c22}
+.error-campo{color:#c0392b;font-size:12px;margin-top:3px}.ayuda{color:#777;font-size:11px}
+.barra{background:#dde1f5;border-radius:3px;margin:3px 0}.barra span{display:block;background:#2b3a8c;color:#fff;padding:2px 6px;font-size:12px;border-radius:3px;white-space:nowrap}
+.paginas{margin-top:12px;font-size:13px}.paginas a{color:#2b3a8c}
+.enc{text-align:center}.enc h3{margin:2px}.pie{text-align:right;margin-top:14px;font-size:13px;color:#444}
+.tabla-responsive{overflow-x:auto}
+@media print{.top,nav,.noprint,.mensajes{display:none!important}body{background:#fff}main{box-shadow:none;margin:0;max-width:none}}

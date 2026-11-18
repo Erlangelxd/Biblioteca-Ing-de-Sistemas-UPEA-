@@ -1,0 +1,21 @@
+{% macro campo(nombre, etiqueta, f, errores, tipo='text', ayuda='', requerido=False) %}
+<div><label for="{{ nombre }}">{{ etiqueta }}{% if requerido %} *{% endif %}</label>
+<input type="{{ tipo }}" name="{{ nombre }}" id="{{ nombre }}" value="{{ f.get(nombre, '') if f.get(nombre) is not none else '' }}" {% if requerido %}required{% endif %}>
+{% if errores and errores.get(nombre) %}<div class="error-campo">{{ errores[nombre] }}</div>{% endif %}
+{% if ayuda %}<div class="ayuda">{{ ayuda }}</div>{% endif %}</div>
+{% endmacro %}
+{% macro lista(nombre, etiqueta, opciones, f, errores) %}
+<div><label for="{{ nombre }}">{{ etiqueta }}</label>
+<select name="{{ nombre }}" id="{{ nombre }}">
+{% for valor, texto in opciones.items() %}<option value="{{ valor }}" {% if f.get(nombre) == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
+</select>
+{% if errores and errores.get(nombre) %}<div class="error-campo">{{ errores[nombre] }}</div>{% endif %}</div>
+{% endmacro %}
+{% macro paginas(pag, parametros) %}
+<div class="paginas">
+{% if pag.pagina > 1 %}<a href="?{{ parametros }}&pagina={{ pag.pagina - 1 }}">« Anterior</a>{% endif %}
+Página {{ pag.pagina }} de {{ pag.paginas }} ({{ pag.total }} registros)
+{% if pag.pagina < pag.paginas %}<a href="?{{ parametros }}&pagina={{ pag.pagina + 1 }}">Siguiente »</a>{% endif %}
+</div>
+{% endmacro %}
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}

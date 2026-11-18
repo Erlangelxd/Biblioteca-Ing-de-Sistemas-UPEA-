@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo, lista, csrf with context %}
+{% block contenido %}
+<h1>{{ titulo }}</h1>
+<form method="post">{{ csrf() }}
+{{ campo('titulo', 'Título', f, errores, requerido=True) }}
+<div class="fila">{{ campo('gestion', 'Gestión (año)', f, errores, 'number', requerido=True) }}
+{{ lista('modalidad', 'Modalidad', MODALIDADES, f, errores) }}
+{{ campo('fecha_recepcion', 'Fecha de recepción', f, errores, 'date') }}</div>
+{{ campo('autores', 'Autor(es) (separados por punto y coma)', f, errores, requerido=True) }}
+<div class="fila">{{ campo('tutor_nombre', 'Tutor', f, errores) }}
+<div><label for="id_area">Área temática</label><select name="id_area" id="id_area"><option value="">— seleccione —</option>
+{% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if f.get('id_area')|string == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}</select></div>
+{{ campo('area_nueva', '…o escriba un área nueva', f, errores) }}</div>
+{% if not editar %}<div class="fila">{{ campo('num_ejemplares', 'N.º de ejemplares', f, errores, 'number') }}
+{{ campo('ubicacion', 'Ubicación (estante o sección)', f, errores, requerido=True) }}</div>{% endif %}
+<label><input type="checkbox" name="cd_entregado" {{ 'checked' if f.get('cd_entregado') }}> CD entregado</label>
+<label><input type="checkbox" name="autoriza_publicacion" {{ 'checked' if f.get('autoriza_publicacion') }}> Autorización de publicación firmada</label>
+<label for="resumen">Resumen</label><textarea name="resumen" id="resumen" rows="4">{{ f.get('resumen','') }}</textarea>
+<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('trabajos.lista') }}">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo, lista, csrf with context %}
+{% block contenido %}
+<div style="max-width:520px"><h1>{{ titulo }}</h1>
+<form method="post">{{ csrf() }}
+{{ campo('nombre', 'Nombre completo', f, errores, requerido=True) }}
+{{ campo('ci', 'CI', f, errores, requerido=True) }}
+{{ campo('matricula', 'Matrícula universitaria (si es estudiante)', f, errores) }}
+{{ lista('tipo', 'Tipo', TIPOS_SOLICITANTE, f, errores) }}
+{{ campo('telefono', 'Teléfono', f, errores) }}
+<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('solicitantes.lista') }}">Cancelar</a>
+</form></div>
+{% endblock %}

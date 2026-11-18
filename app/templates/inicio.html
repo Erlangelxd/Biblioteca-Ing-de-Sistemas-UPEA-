@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Inicio</h1>
+<div class="tarjetas">
+<div class="tarjeta"><b>{{ total_trabajos }}</b>Trabajos registrados</div>
+<div class="tarjeta"><b>{{ vigentes }}</b>Préstamos vigentes</div>
+<div class="tarjeta rojo"><b>{{ vencidos }}</b>Devoluciones vencidas</div>
+<div class="tarjeta"><b>{{ recientes }}</b>Ingresos de este año</div>
+</div>
+<h2>Accesos rápidos</h2>
+{% if puede_editar %}<a class="btn" href="{{ url_for('trabajos.nuevo') }}">Registrar trabajo</a>{% endif %}
+<a class="btn" href="{{ url_for('trabajos.lista') }}">Buscar trabajo</a>
+{% if puede_editar %}<a class="btn" href="{{ url_for('prestamos.nuevo') }}">Registrar préstamo</a>{% endif %}
+<a class="btn" href="{{ url_for('reportes.indice') }}">Ver reportes</a>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block contenido %}
+<h1>Reportes</h1>
+<table><tr><th>Reporte</th><th>Requerimiento</th><th></th></tr>
+{% for clave, nombre, rf in reportes %}<tr><td>{{ nombre }}</td><td>{{ rf }}</td><td><a class="btn s" href="{{ url_for('reportes.ver', clave=clave) }}">Ver reporte</a></td></tr>{% endfor %}
+</table>
+{% endblock %}

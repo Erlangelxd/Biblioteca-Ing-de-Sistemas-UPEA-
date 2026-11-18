@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import paginas, csrf with context %}
+{% block contenido %}
+<h1>Préstamos y devoluciones</h1>
+<p>
+<a class="btn {{ '' if ver == 'vigentes' else 'g' }} s" href="?ver=vigentes">Vigentes</a>
+<a class="btn {{ '' if ver == 'vencidos' else 'g' }} s" href="?ver=vencidos">Vencidos</a>
+<a class="btn {{ '' if ver == 'todos' else 'g' }} s" href="?ver=todos">Todos</a>
+{% if puede_editar %}<a class="btn" href="{{ url_for('prestamos.nuevo') }}">Registrar préstamo</a>{% endif %}</p>
+<div class="tabla-responsive"><table>
+<tr><th>Ejemplar</th><th>Trabajo</th><th>Solicitante</th><th>Tipo</th><th>Garantía</th><th>Préstamo</th><th>Devolución prevista</th><th>Estado</th><th></th></tr>
+{% for p in pag.filas %}{% set est = estado_prestamo(p) %}
+<tr><td>{{ p.codigo }}</td><td>{{ p.titulo }}</td><td>{{ p.solicitante }}</td><td>{{ TIPOS_PRESTAMO[p.tipo] }}</td><td>{{ GARANTIAS[p.garantia] }}</td>
+<td>{{ p.fecha_prestamo|fecha }}</td><td>{{ p.fecha_devolucion_prevista|fecha }}</td>
+<td><span class="chip {{ est }}">{{ {'vigente':'Vigente','vencido':'Vencido','devuelto':'Devuelto'}[est] }}{% if est == 'vencido' %} ({{ dias_retraso(p) }} d){% endif %}</span></td>
+<td><a class="btn s g" href="{{ url_for('prestamos.comprobante', id_prestamo=p.id_prestamo) }}">Comprobante</a>
+{% if puede_editar and p.estado == 'vigente' %}
+<form method="post" action="{{ url_for('prestamos.devolver', id_prestamo=p.id_prestamo) }}" style="display:inline">{{ csrf() }}<button class="btn s" type="submit">Devolver</button></form>
+{% if puede_renovar(p) %}<form method="post" action="{{ url_for('prestamos.renovar', id_prestamo=p.id_prestamo) }}" style="display:inline">{{ csrf() }}<button class="btn s g" type="submit">Renovar</button></form>{% endif %}
+{% endif %}</td></tr>
+{% else %}<tr><td colspan="9">No hay préstamos en esta vista.</td></tr>{% endfor %}
+</table></div>
+{{ paginas(pag, 'ver=' ~ ver) }}
+{% endblock %}

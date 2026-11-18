@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="enc"><h3>UNIVERSIDAD PÚBLICA DE EL ALTO</h3><div>Biblioteca Especializada de Ingeniería de Sistemas</div>
+<h3 style="margin-top:14px">{{ titulo|upper }}</h3>
+<div>Fecha de emisión: {{ hoy.strftime('%d/%m/%Y') }} &nbsp;|&nbsp; Emitido por: {{ usuario.nombre_usuario }}</div></div>
+{% if filtro_fechas %}<form method="get" class="fila noprint" style="align-items:end">
+<div><label>Desde</label><input type="date" name="desde" value="{{ desde }}"></div><div><label>Hasta</label><input type="date" name="hasta" value="{{ hasta }}"></div>
+<div><button class="btn" type="submit">Filtrar</button></div></form>{% endif %}
+{% if filtro_q %}<form method="get" class="fila noprint" style="align-items:end">
+<div><label>Solicitante (nombre, CI o matrícula)</label><input name="q" value="{{ q }}"></div><div><button class="btn" type="submit">Filtrar</button></div></form>{% endif %}
+<div class="tabla-responsive"><table>
+<tr>{% for c in columnas %}<th>{{ c }}</th>{% endfor %}</tr>
+{% for fila in filas %}<tr>{% for celda in fila %}<td>{{ celda }}</td>{% endfor %}</tr>
+{% else %}<tr><td colspan="{{ columnas|length }}">Sin datos para mostrar.</td></tr>{% endfor %}
+</table></div>
+{% if barras %}<h2>Gráfico</h2>
+{% for etiqueta, valor, porcentaje in barras %}<div>{{ etiqueta }}</div><div class="barra"><span style="width:{{ [porcentaje, 6]|max }}%">{{ valor }}</span></div>{% endfor %}{% endif %}
+<div class="pie">{{ total }}</div>
+<p class="noprint"><button class="btn" onclick="window.print()">Imprimir / guardar en PDF</button>
+<a class="btn g" href="{{ url_for('reportes.ver', clave=clave, formato='csv', **request.args) }}">Descargar CSV</a>
+<a class="btn g" href="{{ url_for('reportes.indice') }}">Volver</a></p>
+{% endblock %}

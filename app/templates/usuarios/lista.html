@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block contenido %}
+<h1>Usuarios del sistema</h1>
+<a class="btn" href="{{ url_for('auth.usuario_nuevo') }}">Crear usuario</a>
+<table><tr><th>Usuario</th><th>Perfil</th><th>Estado</th><th></th></tr>
+{% for u in filas %}
+<tr><td>{{ u.nombre_usuario }}</td><td>{{ 'Administrador (bibliotecaria)' if u.rol == 'administrador' else 'Consulta' }}</td>
+<td><span class="chip {{ 'ok' if u.activo else 'na' }}">{{ 'Activo' if u.activo else 'Desactivado' }}</span></td>
+<td><a class="btn s" href="{{ url_for('auth.usuario_editar', id_usuario=u.id_usuario) }}">Modificar</a>
+<form method="post" action="{{ url_for('auth.usuario_estado', id_usuario=u.id_usuario) }}" style="display:inline">{{ csrf() }}
+<button class="btn s {{ 'r' if u.activo else '' }}" type="submit">{{ 'Desactivar' if u.activo else 'Activar' }}</button></form></td></tr>
+{% endfor %}</table>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import paginas with context %}
+{% block contenido %}
+<h1>Solicitantes</h1>
+<form method="get" class="fila" style="align-items:end">
+<div><label>Buscar por nombre, CI o matrícula</label><input name="q" value="{{ q }}"></div>
+<div><button class="btn" type="submit">Buscar</button>
+{% if puede_editar %}<a class="btn g" href="{{ url_for('solicitantes.nuevo') }}">Registrar solicitante</a>{% endif %}</div></form>
+<table><tr><th>Nombre</th><th>CI</th><th>Matrícula</th><th>Tipo</th><th>Teléfono</th><th></th></tr>
+{% for s in pag.filas %}
+<tr><td>{{ s.nombre }}</td><td>{{ s.ci }}</td><td>{{ s.matricula or '—' }}</td><td>{{ TIPOS_SOLICITANTE[s.tipo] }}</td><td>{{ s.telefono or '—' }}</td>
+<td>{% if puede_editar %}<a class="btn s" href="{{ url_for('solicitantes.editar', id_solicitante=s.id_solicitante) }}">Modificar</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6">No hay solicitantes.</td></tr>{% endfor %}
+</table>
+{{ paginas(pag, parametros) }}
+{% endblock %}

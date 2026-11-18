@@ -1,0 +1,31 @@
+{% from "_macros.html" import csrf with context %}<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Biblioteca de Ingeniería de Sistemas{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+<div class="top"><b>Biblioteca de Ingeniería de Sistemas — UPEA</b>
+<span>{% if usuario %}Usuario: {{ usuario.nombre_usuario }} ({{ usuario.rol }}) &nbsp;
+<a href="{{ url_for('auth.clave') }}" style="color:#fff">Cambiar clave</a> &nbsp;
+<form method="post" action="{{ url_for('auth.logout') }}">{{ csrf() }}<button type="submit">Salir</button></form>
+{% else %}<a href="{{ url_for('auth.login') }}" style="color:#fff">Ingresar</a>{% endif %}</span></div>
+{% if usuario %}
+<nav>
+<a href="{{ url_for('main.inicio') }}" class="{{ 'activo' if endpoint == 'main.inicio' }}">Inicio</a>
+<a href="{{ url_for('trabajos.lista') }}" class="{{ 'activo' if endpoint.startswith('trabajos') }}">Trabajos de grado</a>
+<a href="{{ url_for('solicitantes.lista') }}" class="{{ 'activo' if endpoint.startswith('solicitantes') }}">Solicitantes</a>
+<a href="{{ url_for('prestamos.lista') }}" class="{{ 'activo' if endpoint.startswith('prestamos') }}">Préstamos</a>
+<a href="{{ url_for('reportes.indice') }}" class="{{ 'activo' if endpoint.startswith('reportes') }}">Reportes</a>
+{% if puede_editar %}<a href="{{ url_for('auth.usuarios') }}" class="{{ 'activo' if endpoint.startswith('auth.usuario') }}">Usuarios</a>{% endif %}
+</nav>
+{% endif %}
+<main>
+{% with mensajes = get_flashed_messages(with_categories=true) %}{% if mensajes %}<ul class="mensajes">
+{% for categoria, m in mensajes %}<li class="{{ categoria }}">{{ m }}</li>{% endfor %}</ul>{% endif %}{% endwith %}
+{% block contenido %}{% endblock %}
+</main>
+</body>
+</html>

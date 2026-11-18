@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import paginas with context %}
+{% block contenido %}
+<h1>Trabajos de grado</h1>
+<form method="get">
+<div class="fila">
+<div><label>Título o palabra clave</label><input name="q" value="{{ g.get('q','') }}"></div>
+<div><label>Autor</label><input name="autor" value="{{ g.get('autor','') }}"></div>
+<div><label>Año</label><select name="anio"><option value="">Todos</option>{% for a in anios %}<option value="{{ a }}" {{ 'selected' if g.get('anio') == a|string }}>{{ a }}</option>{% endfor %}</select></div>
+<div><label>Área temática</label><select name="area"><option value="">Todas</option>{% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if g.get('area') == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}</select></div>
+<div><label>Modalidad</label><select name="modalidad"><option value="">Todas</option>{% for k, v in MODALIDADES.items() %}<option value="{{ k }}" {{ 'selected' if g.get('modalidad') == k }}>{{ v }}</option>{% endfor %}</select></div>
+<div><label>Estado</label><select name="estado"><option value="">Todos</option>
+<option value="disponible" {{ 'selected' if g.get('estado') == 'disponible' }}>Disponible</option>
+<option value="prestado" {{ 'selected' if g.get('estado') == 'prestado' }}>En préstamo</option></select></div>
+</div>
+<button class="btn" type="submit">Buscar</button>
+{% if puede_editar %}<a class="btn g" href="{{ url_for('trabajos.nuevo') }}">Registrar trabajo</a>{% endif %}
+</form>
+<div class="tabla-responsive"><table>
+<tr><th>Título</th><th>Autor(es)</th><th>Año</th><th>Área</th><th>Ubicación</th><th>Estado</th></tr>
+{% for t in filas %}
+<tr><td><a href="{{ url_for('trabajos.detalle', id_trabajo=t.id_trabajo) }}">{{ t.titulo }}</a></td>
+<td>{{ t.autores or '—' }}</td><td>{{ t.gestion }}</td><td>{{ t.area or '—' }}</td><td>{{ t.ubicacion or '—' }}</td>
+<td><span class="chip {{ t.estado[0] }}">{{ t.estado[1] }}</span></td></tr>
+{% else %}<tr><td colspan="6">No se encontraron trabajos.</td></tr>{% endfor %}
+</table></div>
+{{ paginas(pag, parametros) }}
+{% endblock %}

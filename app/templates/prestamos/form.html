@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block contenido %}
+<div style="max-width:620px"><h1>Registrar préstamo o consulta</h1>
+<form method="post">{{ csrf() }}
+<label for="id_ejemplar">Trabajo (ejemplar disponible)</label>
+<select name="id_ejemplar" id="id_ejemplar" required><option value="">— seleccione —</option>
+{% for e in ejemplares %}<option value="{{ e.id_ejemplar }}" {{ 'selected' if f.get('id_ejemplar')|string == e.id_ejemplar|string }}>{{ e.codigo }} – {{ e.titulo }} ({{ e.ubicacion }})</option>{% endfor %}</select>
+<label for="documento">Solicitante (CI o matrícula) *</label><input name="documento" id="documento" value="{{ f.get('documento','') }}" required maxlength="15">
+<div class="ayuda">Si no aparece, <a href="{{ url_for('solicitantes.nuevo') }}">regístrelo primero</a>.</div>
+<div class="fila"><div><label>Tipo</label><select name="tipo">{% for k, v in TIPOS_PRESTAMO.items() %}<option value="{{ k }}" {{ 'selected' if f.get('tipo') == k }}>{{ v }}</option>{% endfor %}</select></div>
+<div><label>Garantía</label><select name="garantia">{% for k, v in GARANTIAS.items() %}<option value="{{ k }}" {{ 'selected' if f.get('garantia') == k }}>{{ v }}</option>{% endfor %}</select></div></div>
+<label>Devolución prevista</label><input type="date" name="fecha_devolucion_prevista" value="{{ f.get('fecha_devolucion_prevista','') }}">
+<div class="ayuda">Déjela vacía para calcularla: interno = hoy; externo = {{ prevista_externo|fecha }}.</div>
+<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('prestamos.lista') }}">Cancelar</a>
+</form></div>
+{% endblock %}

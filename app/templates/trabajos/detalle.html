@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block contenido %}
+<h1>{{ t.titulo }}</h1>
+<p><span class="chip {{ estado[0] }}">{{ estado[1] }}</span></p>
+<table>
+<tr><th style="width:200px">Autor(es)</th><td>{{ autores|join('; ') or '—' }}</td></tr>
+<tr><th>Tutor</th><td>{{ t.tutor or '—' }}</td></tr>
+<tr><th>Gestión</th><td>{{ t.gestion }}</td></tr>
+<tr><th>Modalidad</th><td>{{ MODALIDADES[t.modalidad] }}</td></tr>
+<tr><th>Área temática</th><td>{{ t.area or '—' }}</td></tr>
+<tr><th>Fecha de recepción</th><td>{{ t.fecha_recepcion|fecha }}</td></tr>
+<tr><th>CD entregado</th><td>{{ 'Sí' if t.cd_entregado else 'No' }}</td></tr>
+<tr><th>Autorización de publicación</th><td>{{ 'Sí' if t.autoriza_publicacion else 'No' }}</td></tr>
+<tr><th>Resumen</th><td style="white-space:pre-line">{{ t.resumen or '—' }}</td></tr>
+</table>
+<h2>Ejemplares</h2>
+<table><tr><th>Código</th><th>Ubicación</th><th>Estado</th><th></th></tr>
+{% for e in ejemplares %}
+<tr><td>{{ e.codigo }}</td><td>{{ e.ubicacion }}</td><td>{{ ESTADOS_EJEMPLAR[e.estado] }}</td>
+<td>{% if puede_editar and e.estado == 'disponible' %}<a class="btn s" href="{{ url_for('prestamos.nuevo', ejemplar=e.id_ejemplar) }}">Prestar</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="4">Sin ejemplares.</td></tr>{% endfor %}
+</table>
+{% if puede_editar and t.activo %}
+<form method="post" action="{{ url_for('trabajos.ejemplar_nuevo', id_trabajo=t.id_trabajo) }}" class="fila" style="align-items:end">{{ csrf() }}
+<div><label>Agregar ejemplar — ubicación</label><input name="ubicacion" maxlength="60"></div>
+<div><button class="btn" type="submit">Agregar ejemplar</button></div></form>
+{% endif %}
+<h2>Historial de préstamos</h2>
+<table><tr><th>Solicitante</th><th>Ejemplar</th><th>Préstamo</th><th>Devolución real</th><th>Estado</th></tr>
+{% for p in historial %}
+<tr><td>{{ p.solicitante }}</td><td>{{ p.codigo }}</td><td>{{ p.fecha_prestamo|fecha }}</td><td>{{ p.fecha_devolucion_real|fecha }}</td>
+<td>{{ {'vigente':'Vigente','vencido':'Vencido','devuelto':'Devuelto'}[estado_prestamo(p)] }}</td></tr>
+{% else %}<tr><td colspan="5">Sin préstamos registrados.</td></tr>{% endfor %}
+</table>
+<a class="btn g" href="{{ url_for('trabajos.lista') }}">Volver</a>
+{% if puede_editar and t.activo %}
+<a class="btn" href="{{ url_for('trabajos.editar', id_trabajo=t.id_trabajo) }}">Modificar</a>
+<form method="post" action="{{ url_for('trabajos.baja', id_trabajo=t.id_trabajo) }}" style="display:inline" onsubmit="return confirm('¿Dar de baja este trabajo? El historial se conserva.');">{{ csrf() }}
+<button class="btn r" type="submit">Dar de baja</button></form>
+{% endif %}
+{% endblock %}
