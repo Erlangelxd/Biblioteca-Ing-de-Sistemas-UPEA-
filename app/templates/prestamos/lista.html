@@ -10,7 +10,7 @@
 <div class="tabla-responsive"><table>
 <tr><th>Ejemplar</th><th>Trabajo</th><th>Solicitante</th><th>Tipo</th><th>Garantía</th><th>Préstamo</th><th>Devolución prevista</th><th>Estado</th><th></th></tr>
 {% for p in pag.filas %}{% set est = estado_prestamo(p) %}
-<tr><td>{{ p.codigo }}</td><td>{{ p.titulo }}</td><td>{{ p.solicitante }}</td><td>{{ TIPOS_PRESTAMO[p.tipo] }}</td><td>{{ GARANTIAS[p.garantia] }}</td>
+<tr><td>{{ p.ejemplar.codigo }}</td><td>{{ p.ejemplar.trabajo.titulo }}</td><td>{{ p.solicitante.nombre }}</td><td>{{ TIPOS_PRESTAMO[p.tipo] }}</td><td>{{ GARANTIAS[p.garantia] }}</td>
 <td>{{ p.fecha_prestamo|fecha }}</td><td>{{ p.fecha_devolucion_prevista|fecha }}</td>
 <td><span class="chip {{ est }}">{{ {'vigente':'Vigente','vencido':'Vencido','devuelto':'Devuelto'}[est] }}{% if est == 'vencido' %} ({{ dias_retraso(p) }} d){% endif %}</span></td>
 <td><a class="btn s g" href="{{ url_for('prestamos.comprobante', id_prestamo=p.id_prestamo) }}">Comprobante</a>

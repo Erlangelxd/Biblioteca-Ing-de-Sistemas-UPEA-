@@ -5,10 +5,10 @@
 <p><span class="chip {{ estado[0] }}">{{ estado[1] }}</span></p>
 <table>
 <tr><th style="width:200px">Autor(es)</th><td>{{ autores|join('; ') or '—' }}</td></tr>
-<tr><th>Tutor</th><td>{{ t.tutor or '—' }}</td></tr>
+<tr><th>Tutor</th><td>{{ t.tutor.nombre if t.tutor else '—' }}</td></tr>
 <tr><th>Gestión</th><td>{{ t.gestion }}</td></tr>
 <tr><th>Modalidad</th><td>{{ MODALIDADES[t.modalidad] }}</td></tr>
-<tr><th>Área temática</th><td>{{ t.area or '—' }}</td></tr>
+<tr><th>Área temática</th><td>{{ t.area.nombre if t.area else '—' }}</td></tr>
 <tr><th>Fecha de recepción</th><td>{{ t.fecha_recepcion|fecha }}</td></tr>
 <tr><th>CD entregado</th><td>{{ 'Sí' if t.cd_entregado else 'No' }}</td></tr>
 <tr><th>Autorización de publicación</th><td>{{ 'Sí' if t.autoriza_publicacion else 'No' }}</td></tr>
@@ -29,7 +29,7 @@
 <h2>Historial de préstamos</h2>
 <table><tr><th>Solicitante</th><th>Ejemplar</th><th>Préstamo</th><th>Devolución real</th><th>Estado</th></tr>
 {% for p in historial %}
-<tr><td>{{ p.solicitante }}</td><td>{{ p.codigo }}</td><td>{{ p.fecha_prestamo|fecha }}</td><td>{{ p.fecha_devolucion_real|fecha }}</td>
+<tr><td>{{ p.solicitante.nombre }}</td><td>{{ p.ejemplar.codigo }}</td><td>{{ p.fecha_prestamo|fecha }}</td><td>{{ p.fecha_devolucion_real|fecha }}</td>
 <td>{{ {'vigente':'Vigente','vencido':'Vencido','devuelto':'Devuelto'}[estado_prestamo(p)] }}</td></tr>
 {% else %}<tr><td colspan="5">Sin préstamos registrados.</td></tr>{% endfor %}
 </table>

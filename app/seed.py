@@ -1,61 +1,122 @@
 """Datos de ejemplo (ficticios) para probar el sistema. NO usar en producción."""
 from datetime import date, timedelta
 
+from sqlalchemy import select
 from werkzeug.security import generate_password_hash
 
-from .db import transaccion
-from .servicios import registrar_devolucion
+from .extensions import db
+from .models import (
+    AreaTematica,
+    Autor,
+    Ejemplar,
+    Prestamo,
+    Solicitante,
+    TrabajoGrado,
+    Tutor,
+    Usuario,
+)
+from .services import registrar_devolucion
 
 
-def cargar(db):
-    if db.execute("SELECT 1 FROM trabajo_grado").fetchone():
+def cargar():
+    if db.session.scalar(select(TrabajoGrado.id_trabajo).limit(1)):
         return "Ya existen datos; no se cargó nada."
+
     hoy = date.today()
-    with transaccion(db):
-        for nombre, clave, rol in [("bibliotecaria", "biblioteca2026", "administrador"), ("consulta", "consulta2026", "consulta")]:
-            db.execute("INSERT OR IGNORE INTO usuario (nombre_usuario, contrasena, rol) VALUES (?,?,?)",
-                       (nombre, generate_password_hash(clave), rol))
-        areas = {}
-        for n in ["Programación", "Bases de datos", "Redes", "Inteligencia artificial", "Ingeniería de software"]:
-            areas[n] = db.execute("INSERT INTO area_tematica (nombre) VALUES (?)", (n,)).lastrowid
-        tutores = [db.execute("INSERT INTO tutor (nombre) VALUES (?)", (n,)).lastrowid
-                   for n in ["Ph. D. Tutor Uno", "M. Sc. Tutor Dos", "Ing. Tutor Tres"]]
+    try:
+        def usuario(nombre, clave, rol):
+            """Reutiliza el usuario si ya existe (p. ej. creado con crear-usuario)."""
+            existente = db.session.scalar(
+                select(Usuario).where(Usuario.nombre_usuario == nombre)
+            )
+            if existente:
+                return existente
+            nuevo = Usuario(
+                nombre_usuario=nombre,
+                contrasena=generate_password_hash(clave),
+                rol=rol,
+            )
+            db.session.add(nuevo)
+            db.session.flush()
+            return nuevo
+
+        admin = usuario("bibliotecaria", "biblioteca2026", "administrador")
+        usuario("consulta", "consulta2026", "consulta")
+
+        areas = {
+            nombre: AreaTematica(nombre=nombre)
+            for nombre in ["Programación", "Bases de datos", "Redes", "Inteligencia artificial", "Ingeniería de software"]
+        }
+        tutores = [Tutor(nombre=nombre) for nombre in ["Ph. D. Tutor Uno", "M. Sc. Tutor Dos", "Ing. Tutor Tres"]]
+        db.session.add_all(list(areas.values()) + tutores)
+        db.session.flush()
+
         obras = [
             ("Sistema de ejemplo para el control de inventarios", 2024, "proyecto", "Programación", ["Autor Uno"], 2),
             ("Aplicación de ejemplo para gestión académica", 2022, "tesis", "Bases de datos", ["Autor Dos", "Autor Tres"], 1),
             ("Análisis de ejemplo de una red de área local", 2021, "dirigido", "Redes", ["Autor Cuatro"], 1),
             ("Modelo de ejemplo de predicción con aprendizaje automático", 2025, "tesis", "Inteligencia artificial", ["Autor Cinco"], 2),
             ("Plataforma de ejemplo para registro de pacientes", 2023, "proyecto", "Ingeniería de software", ["Autor Seis"], 1),
-            ("Sistema de ejemplo de control de almacenes", 2020, "proyecto", "Programación", ["Autor Siete"], 1)]
+            ("Sistema de ejemplo de control de almacenes", 2020, "proyecto", "Programación", ["Autor Siete"], 1),
+        ]
         ejemplares = []
-        for i, (titulo, gestion, modalidad, area, autores, n) in enumerate(obras):
-            idt = db.execute(
-                "INSERT INTO trabajo_grado (titulo, resumen, gestion, modalidad, fecha_recepcion, cd_entregado, "
-                "autoriza_publicacion, id_area, id_tutor) VALUES (?,?,?,?,?,1,1,?,?)",
-                (titulo, "Resumen de ejemplo del trabajo.", gestion, modalidad,
-                 (hoy - timedelta(days=30 * (i + 1))).isoformat(), areas[area], tutores[i % 3])).lastrowid
-            for nombre in autores:
-                ida = db.execute("INSERT INTO autor (nombre) VALUES (?)", (nombre,)).lastrowid
-                db.execute("INSERT INTO trabajo_autor VALUES (?,?)", (idt, ida))
-            for k in range(n):
-                ejemplares.append(db.execute("INSERT INTO ejemplar (id_trabajo, codigo, ubicacion) VALUES (?,?,?)",
-                                             (idt, f"TG-{idt:04d}-{k + 1}", f"Estante {i % 3 + 1} – Sección {'AB'[i % 2]}")).lastrowid)
-        sol = [db.execute("INSERT INTO solicitante (nombre, ci, matricula, tipo) VALUES (?,?,?,?)", d).lastrowid for d in [
-            ("Estudiante de Ejemplo Uno", "1111111", "M-001", "estudiante"), ("Estudiante de Ejemplo Dos", "2222222", "M-002", "estudiante"),
-            ("Docente de Ejemplo", "3333333", "", "docente"), ("Estudiante de Ejemplo Tres", "4444444", "M-004", "estudiante")]]
-        admin = db.execute("SELECT id_usuario FROM usuario WHERE nombre_usuario = 'bibliotecaria'").fetchone()[0]
+        for i, (titulo, gestion, modalidad, area, autores, cantidad) in enumerate(obras):
+            trabajo = TrabajoGrado(
+                titulo=titulo,
+                resumen="Resumen de ejemplo del trabajo.",
+                gestion=gestion,
+                modalidad=modalidad,
+                fecha_recepcion=(hoy - timedelta(days=30 * (i + 1))).isoformat(),
+                cd_entregado=True,
+                autoriza_publicacion=True,
+                area=areas[area],
+                tutor=tutores[i % 3],
+                autores=[Autor(nombre=nombre) for nombre in autores],
+            )
+            db.session.add(trabajo)
+            db.session.flush()
+            for numero in range(1, cantidad + 1):
+                ejemplar = Ejemplar(
+                    id_trabajo=trabajo.id_trabajo,
+                    codigo=f"TG-{trabajo.id_trabajo:04d}-{numero}",
+                    ubicacion=f"Estante {i % 3 + 1} – Sección {'AB'[i % 2]}",
+                )
+                db.session.add(ejemplar)
+                ejemplares.append(ejemplar)
 
-        def prestar(ej, s, tipo, dias_atras, plazo, devuelto=False):
-            f = hoy - timedelta(days=dias_atras)
-            pid = db.execute(
-                "INSERT INTO prestamo (id_ejemplar, id_solicitante, id_usuario, tipo, garantia, fecha_prestamo, fecha_devolucion_prevista) "
-                "VALUES (?,?,?,?,'ci',?,?)", (ej, s, admin, tipo, f.isoformat(), (f + timedelta(days=plazo)).isoformat())).lastrowid
-            db.execute("UPDATE ejemplar SET estado = ? WHERE id_ejemplar = ?",
-                       ("en_consulta" if tipo == "interno" else "en_prestamo", ej))
-            return pid
-        prestar(ejemplares[0], sol[0], "externo", 12, 7)    # vencido
-        prestar(ejemplares[2], sol[2], "externo", 2, 7)     # vigente
-        prestar(ejemplares[4], sol[1], "interno", 0, 0)     # consulta en sala, hoy
-        antiguo = prestar(ejemplares[5], sol[3], "externo", 20, 7)
-    registrar_devolucion(db, antiguo)
-    return "Datos de ejemplo cargados. Usuarios: bibliotecaria/biblioteca2026 y consulta/consulta2026"
+        solicitantes = [
+            Solicitante(nombre="Estudiante de Ejemplo Uno", ci="1111111", matricula="M-001", tipo="estudiante"),
+            Solicitante(nombre="Estudiante de Ejemplo Dos", ci="2222222", matricula="M-002", tipo="estudiante"),
+            Solicitante(nombre="Docente de Ejemplo", ci="3333333", matricula="", tipo="docente"),
+            Solicitante(nombre="Estudiante de Ejemplo Tres", ci="4444444", matricula="M-004", tipo="estudiante"),
+        ]
+        db.session.add_all(solicitantes)
+        db.session.flush()
+
+        def prestar(ejemplar, solicitante, tipo, dias_atras, plazo):
+            fecha = hoy - timedelta(days=dias_atras)
+            prestamo = Prestamo(
+                id_ejemplar=ejemplar.id_ejemplar,
+                id_solicitante=solicitante.id_solicitante,
+                id_usuario=admin.id_usuario,
+                tipo=tipo,
+                garantia="ci",
+                fecha_prestamo=fecha.isoformat(),
+                fecha_devolucion_prevista=(fecha + timedelta(days=plazo)).isoformat(),
+            )
+            ejemplar.estado = "en_consulta" if tipo == "interno" else "en_prestamo"
+            db.session.add(prestamo)
+            db.session.flush()
+            return prestamo
+
+        prestar(ejemplares[0], solicitantes[0], "externo", 12, 7)   # vencido
+        prestar(ejemplares[2], solicitantes[2], "externo", 2, 7)    # vigente
+        prestar(ejemplares[4], solicitantes[1], "interno", 0, 0)    # consulta en sala, hoy
+        antiguo = prestar(ejemplares[5], solicitantes[3], "externo", 20, 7)
+        db.session.commit()
+
+        registrar_devolucion(antiguo.id_prestamo)
+        return "Datos de ejemplo cargados. Usuarios: bibliotecaria/biblioteca2026 y consulta/consulta2026"
+    except Exception:
+        db.session.rollback()
+        raise

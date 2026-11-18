@@ -5,7 +5,7 @@
 <form method="post">{{ csrf() }}
 <label for="id_ejemplar">Trabajo (ejemplar disponible)</label>
 <select name="id_ejemplar" id="id_ejemplar" required><option value="">— seleccione —</option>
-{% for e in ejemplares %}<option value="{{ e.id_ejemplar }}" {{ 'selected' if f.get('id_ejemplar')|string == e.id_ejemplar|string }}>{{ e.codigo }} – {{ e.titulo }} ({{ e.ubicacion }})</option>{% endfor %}</select>
+{% for e in ejemplares %}<option value="{{ e.id_ejemplar }}" {{ 'selected' if f.get('id_ejemplar')|string == e.id_ejemplar|string }}>{{ e.codigo }} – {{ e.trabajo.titulo }} ({{ e.ubicacion }})</option>{% endfor %}</select>
 <label for="documento">Solicitante (CI o matrícula) *</label><input name="documento" id="documento" value="{{ f.get('documento','') }}" required maxlength="15">
 <div class="ayuda">Si no aparece, <a href="{{ url_for('solicitantes.nuevo') }}">regístrelo primero</a>.</div>
 <div class="fila"><div><label>Tipo</label><select name="tipo">{% for k, v in TIPOS_PRESTAMO.items() %}<option value="{{ k }}" {{ 'selected' if f.get('tipo') == k }}>{{ v }}</option>{% endfor %}</select></div>

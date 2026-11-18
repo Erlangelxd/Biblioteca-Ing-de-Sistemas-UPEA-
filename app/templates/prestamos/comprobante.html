@@ -3,13 +3,13 @@
 <div class="enc"><h3>UNIVERSIDAD PÚBLICA DE EL ALTO</h3><div>Biblioteca Especializada de Ingeniería de Sistemas</div>
 <h3 style="margin-top:14px">COMPROBANTE DE {{ 'CONSULTA EN SALA' if p.tipo == 'interno' else 'PRÉSTAMO A DOMICILIO' }} N.º {{ '%05d' % p.id_prestamo }}</h3></div>
 <table>
-<tr><th style="width:220px">Trabajo</th><td>{{ p.titulo }}</td></tr>
-<tr><th>Ejemplar / ubicación</th><td>{{ p.codigo }} — {{ p.ubicacion }}</td></tr>
-<tr><th>Solicitante</th><td>{{ p.solicitante }} (CI {{ p.ci }})</td></tr>
+<tr><th style="width:220px">Trabajo</th><td>{{ p.ejemplar.trabajo.titulo }}</td></tr>
+<tr><th>Ejemplar / ubicación</th><td>{{ p.ejemplar.codigo }} — {{ p.ejemplar.ubicacion }}</td></tr>
+<tr><th>Solicitante</th><td>{{ p.solicitante.nombre }} (CI {{ p.solicitante.ci }})</td></tr>
 <tr><th>Garantía</th><td>{{ GARANTIAS[p.garantia] }}</td></tr>
 <tr><th>Fecha de préstamo</th><td>{{ p.fecha_prestamo|fecha }}</td></tr>
 <tr><th>Devolución prevista</th><td>{{ p.fecha_devolucion_prevista|fecha }}</td></tr>
-<tr><th>Registrado por</th><td>{{ p.nombre_usuario }}</td></tr>
+<tr><th>Registrado por</th><td>{{ p.usuario.nombre_usuario }}</td></tr>
 </table>
 <p style="margin-top:50px;display:flex;justify-content:space-around"><span>_____________________<br>Solicitante</span><span>_____________________<br>Encargada de la biblioteca</span></p>
 <p class="noprint"><button class="btn" onclick="window.print()">Imprimir</button><a class="btn g" href="{{ url_for('prestamos.lista') }}">Volver</a></p>
