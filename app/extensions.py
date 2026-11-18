@@ -30,3 +30,5 @@ def _registrar_funciones_sqlite(dbapi_connection, connection_record):
     """Expone norm() en SQLite para filtrar sin tildes desde el ORM."""
     if isinstance(dbapi_connection, sqlite3.Connection):
         dbapi_connection.create_function("norm", 1, normalizar, deterministic=True)
+        # SQLite no aplica las claves foráneas si no se activan en cada conexión.
+        dbapi_connection.execute("PRAGMA foreign_keys = ON")
