@@ -1,16 +1,57 @@
 {% extends "base.html" %}
-{% from "_macros.html" import paginas with context %}
+{% from "_macros.html" import icono, paginas with context %}
 {% block contenido %}
-<h1>Solicitantes</h1>
-<form method="get" class="fila" style="align-items:end">
-<div><label>Buscar por nombre, CI o matrícula</label><input name="q" value="{{ q }}"></div>
-<div><button class="btn" type="submit">Buscar</button>
-{% if puede_editar %}<a class="btn g" href="{{ url_for('solicitantes.nuevo') }}">Registrar solicitante</a>{% endif %}</div></form>
-<table><tr><th>Nombre</th><th>CI</th><th>Matrícula</th><th>Tipo</th><th>Teléfono</th><th></th></tr>
-{% for s in pag.filas %}
-<tr><td>{{ s.nombre }}</td><td>{{ s.ci }}</td><td>{{ s.matricula or '—' }}</td><td>{{ TIPOS_SOLICITANTE[s.tipo] }}</td><td>{{ s.telefono or '—' }}</td>
-<td>{% if puede_editar %}<a class="btn s" href="{{ url_for('solicitantes.editar', id_solicitante=s.id_solicitante) }}">Modificar</a>{% endif %}</td></tr>
-{% else %}<tr><td colspan="6">No hay solicitantes.</td></tr>{% endfor %}
-</table>
-{{ paginas(pag, parametros) }}
+<div class="page-header">
+  <div>
+    <h1>Solicitantes</h1>
+    <p class="page-subtitle">Estudiantes y docentes que solicitan préstamos</p>
+  </div>
+  {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('solicitantes.nuevo') }}">{{ icono('mas') }} Registrar solicitante</a>{% endif %}
+</div>
+
+<div class="card filter-card mb-4">
+  <div class="card-body">
+    <form method="get">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-8 col-lg-6">
+          <label class="form-label" for="q">Buscar por nombre, CI o matrícula</label>
+          <input class="form-control" name="q" id="q" value="{{ q }}" placeholder="Escriba el nombre, CI o matrícula">
+        </div>
+        <div class="col-12 col-md-4 col-lg-3 d-flex gap-2">
+          <button class="btn btn-primary flex-grow-1" type="submit">{{ icono('buscar') }} Buscar</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('solicitantes.lista') }}">Limpiar</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 class="h6 mb-0">Listado</h2>
+    <span class="text-muted small">{{ pag.total }} registro{{ 's' if pag.total != 1 else '' }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle tabla-datos">
+      <thead><tr><th>Nombre</th><th>CI</th><th>Matrícula</th><th>Tipo</th><th>Teléfono</th><th class="text-end">Acciones</th></tr></thead>
+      <tbody>
+        {% for s in pag.filas %}
+        <tr>
+          <td class="fw-semibold celda-principal" data-label="Nombre">{{ s.nombre }}</td>
+          <td data-label="CI">{{ s.ci }}</td>
+          <td data-label="Matrícula">{{ s.matricula or '—' }}</td>
+          <td data-label="Tipo">{{ TIPOS_SOLICITANTE[s.tipo] }}</td>
+          <td data-label="Teléfono">{{ s.telefono or '—' }}</td>
+          <td class="text-end celda-acciones">
+            {% if puede_editar %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('solicitantes.editar', id_solicitante=s.id_solicitante) }}">{{ icono('editar') }} Modificar</a>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state">{{ icono('personas') }} No hay solicitantes registrados.</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pag.filas %}<div class="card-body pt-3">{{ paginas(pag, parametros) }}</div>{% endif %}
+</div>
 {% endblock %}

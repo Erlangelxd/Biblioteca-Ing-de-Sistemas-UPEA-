@@ -1,21 +1,54 @@
+{% macro icono(nombre, clase='') -%}
+<svg class="icono {{ clase }}" aria-hidden="true" focusable="false"><use href="#i-{{ nombre }}"></use></svg>
+{%- endmacro %}
+
 {% macro campo(nombre, etiqueta, f, errores, tipo='text', ayuda='', requerido=False) %}
-<div><label for="{{ nombre }}">{{ etiqueta }}{% if requerido %} *{% endif %}</label>
-<input type="{{ tipo }}" name="{{ nombre }}" id="{{ nombre }}" value="{{ f.get(nombre, '') if f.get(nombre) is not none else '' }}" {% if requerido %}required{% endif %}>
-{% if errores and errores.get(nombre) %}<div class="error-campo">{{ errores[nombre] }}</div>{% endif %}
-{% if ayuda %}<div class="ayuda">{{ ayuda }}</div>{% endif %}</div>
-{% endmacro %}
-{% macro lista(nombre, etiqueta, opciones, f, errores) %}
-<div><label for="{{ nombre }}">{{ etiqueta }}</label>
-<select name="{{ nombre }}" id="{{ nombre }}">
-{% for valor, texto in opciones.items() %}<option value="{{ valor }}" {% if f.get(nombre) == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
-</select>
-{% if errores and errores.get(nombre) %}<div class="error-campo">{{ errores[nombre] }}</div>{% endif %}</div>
-{% endmacro %}
-{% macro paginas(pag, parametros) %}
-<div class="paginas">
-{% if pag.pagina > 1 %}<a href="?{{ parametros }}&pagina={{ pag.pagina - 1 }}">« Anterior</a>{% endif %}
-Página {{ pag.pagina }} de {{ pag.paginas }} ({{ pag.total }} registros)
-{% if pag.pagina < pag.paginas %}<a href="?{{ parametros }}&pagina={{ pag.pagina + 1 }}">Siguiente »</a>{% endif %}
+{%- set tiene_error = errores and errores.get(nombre) -%}
+<div class="mb-3">
+  <label class="form-label" for="{{ nombre }}">{{ etiqueta }}{% if requerido %} <span class="text-danger" aria-hidden="true">*</span>{% endif %}</label>
+  <input type="{{ tipo }}" class="form-control{{ ' is-invalid' if tiene_error }}" name="{{ nombre }}" id="{{ nombre }}" value="{{ f.get(nombre, '') if f.get(nombre) is not none else '' }}" {% if requerido %}required{% endif %}>
+  {% if tiene_error %}<div class="invalid-feedback">{{ errores[nombre] }}</div>{% endif %}
+  {% if ayuda %}<div class="form-text">{{ ayuda }}</div>{% endif %}
 </div>
 {% endmacro %}
+
+{% macro lista(nombre, etiqueta, opciones, f, errores) %}
+{%- set tiene_error = errores and errores.get(nombre) -%}
+<div class="mb-3">
+  <label class="form-label" for="{{ nombre }}">{{ etiqueta }}</label>
+  <select class="form-select{{ ' is-invalid' if tiene_error }}" name="{{ nombre }}" id="{{ nombre }}">
+    {% for valor, texto in opciones.items() %}<option value="{{ valor }}" {% if f.get(nombre) == valor %}selected{% endif %}>{{ texto }}</option>{% endfor %}
+  </select>
+  {% if tiene_error %}<div class="invalid-feedback">{{ errores[nombre] }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro color_estado(codigo) -%}
+{{- {'disponible': 'success', 'vigente': 'success', 'activo': 'success',
+     'prestado': 'warning', 'en_prestamo': 'warning', 'en_consulta': 'info',
+     'vencido': 'danger', 'baja': 'secondary', 'devuelto': 'secondary',
+     'sin_ejemplares': 'secondary', 'inactivo': 'secondary'}.get(codigo, 'secondary') -}}
+{%- endmacro %}
+
+{% macro badge_estado(codigo, texto=None) -%}
+<span class="badge rounded-pill text-bg-{{ color_estado(codigo) }}">{{ texto if texto is not none else codigo|replace('_', ' ')|capitalize }}</span>
+{%- endmacro %}
+
+{% macro paginas(pag, parametros) %}
+{% if pag.paginas > 1 %}
+<nav class="mt-4" aria-label="Paginación">
+  <ul class="pagination pagination-sm justify-content-center mb-2">
+    <li class="page-item{{ ' disabled' if pag.pagina <= 1 }}">
+      {% if pag.pagina > 1 %}<a class="page-link" href="?{{ parametros }}{% if parametros %}&{% endif %}pagina={{ pag.pagina - 1 }}" rel="prev">Anterior</a>{% else %}<span class="page-link">Anterior</span>{% endif %}
+    </li>
+    <li class="page-item disabled"><span class="page-link">Página {{ pag.pagina }} de {{ pag.paginas }}</span></li>
+    <li class="page-item{{ ' disabled' if pag.pagina >= pag.paginas }}">
+      {% if pag.pagina < pag.paginas %}<a class="page-link" href="?{{ parametros }}{% if parametros %}&{% endif %}pagina={{ pag.pagina + 1 }}" rel="next">Siguiente</a>{% else %}<span class="page-link">Siguiente</span>{% endif %}
+    </li>
+  </ul>
+</nav>
+{% endif %}
+<p class="text-center text-muted small mb-0">{{ pag.total }} registro{{ 's' if pag.total != 1 else '' }}</p>
+{% endmacro %}
+
 {% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}

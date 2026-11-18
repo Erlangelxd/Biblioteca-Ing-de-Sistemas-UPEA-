@@ -1,28 +1,93 @@
 {% extends "base.html" %}
-{% from "_macros.html" import paginas with context %}
+{% from "_macros.html" import icono, paginas, badge_estado with context %}
 {% block contenido %}
-<h1>Trabajos de grado</h1>
-<form method="get">
-<div class="fila">
-<div><label>Título o palabra clave</label><input name="q" value="{{ g.get('q','') }}"></div>
-<div><label>Autor</label><input name="autor" value="{{ g.get('autor','') }}"></div>
-<div><label>Año</label><select name="anio"><option value="">Todos</option>{% for a in anios %}<option value="{{ a }}" {{ 'selected' if g.get('anio') == a|string }}>{{ a }}</option>{% endfor %}</select></div>
-<div><label>Área temática</label><select name="area"><option value="">Todas</option>{% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if g.get('area') == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}</select></div>
-<div><label>Modalidad</label><select name="modalidad"><option value="">Todas</option>{% for k, v in MODALIDADES.items() %}<option value="{{ k }}" {{ 'selected' if g.get('modalidad') == k }}>{{ v }}</option>{% endfor %}</select></div>
-<div><label>Estado</label><select name="estado"><option value="">Todos</option>
-<option value="disponible" {{ 'selected' if g.get('estado') == 'disponible' }}>Disponible</option>
-<option value="prestado" {{ 'selected' if g.get('estado') == 'prestado' }}>En préstamo</option></select></div>
+<div class="page-header">
+  <div>
+    <h1>Trabajos de grado</h1>
+    <p class="page-subtitle">Consulta, filtra y administra el fondo bibliográfico</p>
+  </div>
+  {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar trabajo</a>{% endif %}
 </div>
-<button class="btn" type="submit">Buscar</button>
-{% if puede_editar %}<a class="btn g" href="{{ url_for('trabajos.nuevo') }}">Registrar trabajo</a>{% endif %}
-</form>
-<div class="tabla-responsive"><table>
-<tr><th>Título</th><th>Autor(es)</th><th>Año</th><th>Área</th><th>Ubicación</th><th>Estado</th></tr>
-{% for t in filas %}
-<tr><td><a href="{{ url_for('trabajos.detalle', id_trabajo=t.id_trabajo) }}">{{ t.titulo }}</a></td>
-<td>{{ t.autores or '—' }}</td><td>{{ t.gestion }}</td><td>{{ t.area or '—' }}</td><td>{{ t.ubicacion or '—' }}</td>
-<td><span class="chip {{ t.estado[0] }}">{{ t.estado[1] }}</span></td></tr>
-{% else %}<tr><td colspan="6">No se encontraron trabajos.</td></tr>{% endfor %}
-</table></div>
-{{ paginas(pag, parametros) }}
+
+<div class="card filter-card mb-4">
+  <div class="card-header">
+    <h2 class="h6 mb-0">{{ icono('buscar') }} Filtros de búsqueda</h2>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="q">Título o palabra clave</label>
+          <input class="form-control" name="q" id="q" value="{{ g.get('q','') }}">
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label" for="autor">Autor</label>
+          <input class="form-control" name="autor" id="autor" value="{{ g.get('autor','') }}">
+        </div>
+        <div class="col-6 col-sm-3 col-lg-2">
+          <label class="form-label" for="anio">Año</label>
+          <select class="form-select" name="anio" id="anio">
+            <option value="">Todos</option>
+            {% for a in anios %}<option value="{{ a }}" {{ 'selected' if g.get('anio') == a|string }}>{{ a }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-sm-3 col-lg-3">
+          <label class="form-label" for="area">Área temática</label>
+          <select class="form-select" name="area" id="area">
+            <option value="">Todas</option>
+            {% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if g.get('area') == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label" for="modalidad">Modalidad</label>
+          <select class="form-select" name="modalidad" id="modalidad">
+            <option value="">Todas</option>
+            {% for k, v in MODALIDADES.items() %}<option value="{{ k }}" {{ 'selected' if g.get('modalidad') == k }}>{{ v }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <label class="form-label" for="estado">Estado</label>
+          <select class="form-select" name="estado" id="estado">
+            <option value="">Todos</option>
+            <option value="disponible" {{ 'selected' if g.get('estado') == 'disponible' }}>Disponible</option>
+            <option value="prestado" {{ 'selected' if g.get('estado') == 'prestado' }}>En préstamo</option>
+          </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3 d-flex gap-2">
+          <button class="btn btn-primary flex-grow-1" type="submit">{{ icono('buscar') }} Buscar</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('trabajos.lista') }}">Limpiar</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 class="h6 mb-0">Resultados</h2>
+    <span class="text-muted small">{{ pag.total }} registro{{ 's' if pag.total != 1 else '' }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle tabla-datos">
+      <thead>
+        <tr><th>Título</th><th>Autor(es)</th><th>Año</th><th>Área</th><th>Ubicación</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        {% for t in filas %}
+        <tr>
+          <td class="celda-principal" data-label="Título"><a href="{{ url_for('trabajos.detalle', id_trabajo=t.id_trabajo) }}">{{ t.titulo }}</a></td>
+          <td data-label="Autor(es)">{{ t.autores or '—' }}</td>
+          <td data-label="Año">{{ t.gestion }}</td>
+          <td data-label="Área">{{ t.area or '—' }}</td>
+          <td data-label="Ubicación">{{ t.ubicacion or '—' }}</td>
+          <td data-label="Estado">{{ badge_estado(t.estado[0], t.estado[1]) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state">{{ icono('libro') }} No se encontraron trabajos con esos criterios.</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pag.filas %}<div class="card-body pt-3">{{ paginas(pag, parametros) }}</div>{% endif %}
+</div>
 {% endblock %}

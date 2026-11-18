@@ -1,13 +1,33 @@
 {% extends "base.html" %}
-{% from "_macros.html" import campo, lista, csrf with context %}
+{% from "_macros.html" import campo, lista, csrf, icono with context %}
 {% block contenido %}
-<div style="max-width:520px"><h1>{{ titulo }}</h1>
-<form method="post">{{ csrf() }}
-{{ campo('nombre', 'Nombre completo', f, errores, requerido=True) }}
-{{ campo('ci', 'CI', f, errores, requerido=True) }}
-{{ campo('matricula', 'Matrícula universitaria (si es estudiante)', f, errores) }}
-{{ lista('tipo', 'Tipo', TIPOS_SOLICITANTE, f, errores) }}
-{{ campo('telefono', 'Teléfono', f, errores) }}
-<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('solicitantes.lista') }}">Cancelar</a>
-</form></div>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+    <div class="page-header">
+      <div>
+        <h1>{{ titulo }}</h1>
+        <p class="page-subtitle">Datos de contacto e identificación</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">{{ csrf() }}
+          {{ campo('nombre', 'Nombre completo', f, errores, requerido=True) }}
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">{{ campo('ci', 'CI', f, errores, requerido=True) }}</div>
+            <div class="col-12 col-sm-6">{{ campo('matricula', 'Matrícula universitaria', f, errores, ayuda='Solo si es estudiante.') }}</div>
+          </div>
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">{{ lista('tipo', 'Tipo', TIPOS_SOLICITANTE, f, errores) }}</div>
+            <div class="col-12 col-sm-6">{{ campo('telefono', 'Teléfono', f, errores) }}</div>
+          </div>
+          <div class="page-actions mt-2">
+            <button class="btn btn-primary" type="submit">{{ icono('check') }} Guardar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('solicitantes.lista') }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

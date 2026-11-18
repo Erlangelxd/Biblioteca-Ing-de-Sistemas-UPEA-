@@ -1,13 +1,34 @@
 {% extends "base.html" %}
-{% from "_macros.html" import csrf with context %}
+{% from "_macros.html" import csrf, icono with context %}
+{% block titulo %}Iniciar sesión — Biblioteca de Ingeniería de Sistemas{% endblock %}
 {% block contenido %}
-<div style="max-width:380px;margin:30px auto">
-<h1>Iniciar sesión</h1>
-<form method="post">{{ csrf() }}
-<label for="username">Usuario</label><input type="text" name="username" id="username" autofocus required autocomplete="username">
-<label for="password">Contraseña</label><input type="password" name="password" id="password" required autocomplete="current-password">
-<input type="hidden" name="next" value="{{ siguiente or '' }}">
-<button class="btn" type="submit">Ingresar</button>
-{% if config.CATALOGO_PUBLICO %}<a class="btn g" href="{{ url_for('main.catalogo') }}">Consultar el catálogo</a>{% endif %}
-</form></div>
+<div class="row justify-content-center py-2 py-md-4">
+  <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+    <div class="card auth-card shadow-lg">
+      <div class="card-body p-4 p-md-5">
+        <div class="text-center mb-4">
+          <span class="auth-logo"><img src="{{ url_for('static', filename='institucion_logo-1782624629016-599128352.png') }}" alt="Escudo de Ingeniería de Sistemas — UPEA"></span>
+          <h1 class="h3 mt-3 mb-1">Iniciar sesión</h1>
+          <p class="text-muted mb-0">Biblioteca de Ingeniería de Sistemas</p>
+        </div>
+        <form method="post" novalidate>{{ csrf() }}
+          <div class="mb-3">
+            <label class="form-label" for="username">Usuario</label>
+            <input class="form-control form-control-lg" type="text" name="username" id="username" autofocus required autocomplete="username">
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="password">Contraseña</label>
+            <input class="form-control form-control-lg" type="password" name="password" id="password" required autocomplete="current-password">
+          </div>
+          <input type="hidden" name="next" value="{{ siguiente or '' }}">
+          <button class="btn btn-primary btn-lg w-100" type="submit">{{ icono('ingresar') }} Ingresar</button>
+        </form>
+        {% if config.CATALOGO_PUBLICO %}
+        <a class="btn btn-outline-primary w-100 mt-3" href="{{ url_for('main.catalogo') }}">{{ icono('catalogo') }} Consultar el catálogo</a>
+        {% endif %}
+      </div>
+    </div>
+    <p class="text-center text-muted small mt-3 mb-0">Acceso exclusivo para personal autorizado</p>
+  </div>
+</div>
 {% endblock %}

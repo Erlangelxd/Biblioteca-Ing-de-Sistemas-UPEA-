@@ -50,10 +50,18 @@ Implementación en **Flask** del diseño del Capítulo III del proyecto. Arquite
 | Base de datos | SQLite (archivo `instance/biblioteca.sqlite3`) |
 | ORM | Flask-SQLAlchemy `>=3.1,<4` sobre SQLAlchemy `>=2.0,<3` |
 | Arquitectura | Monolito modular: fábrica de aplicación, blueprints, servicios y modelos |
-| Frontend | Plantillas Jinja2 y CSS propio (`app/static/estilos.css`) |
+| Frontend | Plantillas Jinja2, Bootstrap 5.3.3 local y CSS institucional (`app/static/estilos.css`) |
 | Pruebas | `unittest` (28 pruebas) |
 
 Dependencias: `Flask`, `Flask-SQLAlchemy` y `SQLAlchemy` (ver [`requirements.txt`](requirements.txt)).
+
+### Interfaz y diseño
+
+- **Bootstrap 5.3.3 está incluido en `app/static/vendor/bootstrap/`**, por lo que la interfaz funciona sin conexión a internet (no usa CDN en tiempo de ejecución).
+- La identidad visual usa los colores institucionales: azul `#005187`, rojo `#a40027`, blanco y negro.
+- El logotipo tiene letras blancas y se muestra siempre sobre fondo azul `#005187`.
+- El diseño es responsivo: barra de navegación colapsable y tablas que se convierten en tarjetas legibles en móvil.
+- Los iconos son un sprite SVG local (`app/templates/_iconos.html`); no se agregaron dependencias de iconos.
 
 ---
 
@@ -211,7 +219,7 @@ Todos los reportes se sirven en `/reportes/<clave>`, permiten **imprimir / guard
 | **Privacidad** | El catálogo público no expone datos personales de solicitantes. |
 | **Configuración** | Variables de entorno; `SECRET_KEY` fuera del código. |
 | **Respaldo** | Comando `backup` con la API de respaldo de SQLite (copia consistente en caliente). |
-| **Usabilidad** | Interfaz en español, paginación de 15 filas, mensajes de error claros. |
+| **Usabilidad** | Interfaz en español, responsiva (móvil, tablet y escritorio), paginación de 15 filas y mensajes de error claros. |
 | **Errores** | Páginas 400, 404 y 500 controladas con plantilla propia. |
 
 ---
@@ -415,8 +423,11 @@ biblioteca_flask/
 │   │   ├── solicitantes/
 │   │   ├── prestamos/
 │   │   └── reportes/
-│   ├── templates/               # vistas Jinja2
-│   └── static/estilos.css       # hoja de estilos
+│   ├── templates/               # vistas Jinja2, macros e iconos SVG
+│   └── static/
+│       ├── estilos.css          # identidad visual institucional
+│       ├── vendor/bootstrap/    # Bootstrap 5.3.3 local (CSS y JS)
+│       └── institucion_logo-*.png
 ├── docs/                        # documentación del Capítulo III y diagramas
 ├── instance/                    # base de datos, clave secreta y respaldos (no versionar)
 ├── tests/test_app.py            # 28 pruebas automáticas

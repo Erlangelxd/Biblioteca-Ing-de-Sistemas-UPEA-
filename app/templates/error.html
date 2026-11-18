@@ -1,2 +1,17 @@
 {% extends "base.html" %}
-{% block contenido %}<h1>Error {{ codigo }}</h1><p>{{ mensaje }}</p><a class="btn" href="{{ url_for('main.inicio') }}">Ir al inicio</a>{% endblock %}
+{% from "_macros.html" import icono with context %}
+{% block titulo %}Error {{ codigo }} — Biblioteca de Ingeniería de Sistemas{% endblock %}
+{% block contenido %}
+<div class="row justify-content-center py-5">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card text-center">
+      <div class="card-body p-5">
+        <div class="display-4 fw-bold text-primary mb-2">{{ codigo }}</div>
+        <h1 class="h4 mb-3">No se pudo completar la solicitud</h1>
+        <p class="text-muted mb-4">{{ mensaje }}</p>
+        <a class="btn btn-primary" href="{{ url_for('main.inicio') }}">{{ icono('inicio') }} Ir al inicio</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

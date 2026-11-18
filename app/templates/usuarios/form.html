@@ -1,15 +1,51 @@
 {% extends "base.html" %}
-{% from "_macros.html" import csrf with context %}
+{% from "_macros.html" import csrf, icono with context %}
 {% block contenido %}
-<div style="max-width:420px"><h1>{{ 'Modificar usuario' if u else 'Crear usuario' }}</h1>
-<form method="post">{{ csrf() }}
-{% if u %}<p><b>{{ u.nombre_usuario }}</b></p>{% else %}
-<label>Nombre de usuario (3 a 30 caracteres)</label><input name="nombre_usuario" value="{{ f.get('nombre_usuario','') }}" required>{% endif %}
-<label>Perfil</label><select name="rol">
-<option value="consulta" {{ 'selected' if (u and u.rol=='consulta') or f.get('rol')=='consulta' }}>Consulta</option>
-<option value="administrador" {{ 'selected' if (u and u.rol=='administrador') or f.get('rol')=='administrador' }}>Administrador (bibliotecaria)</option></select>
-<label>{{ 'Contraseña nueva (déjela vacía para no cambiarla)' if u else 'Contraseña (mínimo 8 caracteres)' }}</label>
-<input type="password" name="clave" {{ '' if u else 'required' }} minlength="8">
-<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('auth.usuarios') }}">Cancelar</a>
-</form></div>
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+    <div class="page-header">
+      <div>
+        <h1>{{ 'Modificar usuario' if u else 'Crear usuario' }}</h1>
+        <p class="page-subtitle">{{ 'Actualice el perfil o la contraseña' if u else 'Registre una nueva cuenta de acceso' }}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body p-4">
+        <form method="post">{{ csrf() }}
+          {% if u %}
+          <div class="mb-3">
+            <span class="form-label d-block">Usuario</span>
+            <span class="badge text-bg-light fs-6 border">{{ u.nombre_usuario }}</span>
+          </div>
+          {% else %}
+          <div class="mb-3">
+            <label class="form-label" for="nombre_usuario">Nombre de usuario <span class="text-danger" aria-hidden="true">*</span></label>
+            <input class="form-control" name="nombre_usuario" id="nombre_usuario" value="{{ f.get('nombre_usuario','') }}" required minlength="3" maxlength="30">
+            <div class="form-text">Entre 3 y 30 caracteres.</div>
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label" for="rol">Perfil</label>
+            <select class="form-select" name="rol" id="rol">
+              <option value="consulta" {{ 'selected' if (u and u.rol == 'consulta') or f.get('rol') == 'consulta' }}>Consulta</option>
+              <option value="administrador" {{ 'selected' if (u and u.rol == 'administrador') or f.get('rol') == 'administrador' }}>Administrador (bibliotecaria)</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label" for="clave">{{ 'Contraseña nueva (déjela vacía para no cambiarla)' if u else 'Contraseña' }}{% if not u %} <span class="text-danger" aria-hidden="true">*</span>{% endif %}</label>
+            <input class="form-control" type="password" name="clave" id="clave" {{ '' if u else 'required' }} minlength="8" autocomplete="new-password">
+            <div class="form-text">Mínimo 8 caracteres.</div>
+          </div>
+
+          <div class="page-actions">
+            <button class="btn btn-primary" type="submit">{{ icono('check') }} Guardar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('auth.usuarios') }}">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

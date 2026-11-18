@@ -1,7 +1,27 @@
 {% extends "base.html" %}
+{% from "_macros.html" import icono with context %}
 {% block contenido %}
-<h1>Reportes</h1>
-<table><tr><th>Reporte</th><th>Requerimiento</th><th></th></tr>
-{% for clave, nombre, rf in reportes %}<tr><td>{{ nombre }}</td><td>{{ rf }}</td><td><a class="btn s" href="{{ url_for('reportes.ver', clave=clave) }}">Ver reporte</a></td></tr>{% endfor %}
-</table>
+<div class="page-header">
+  <div>
+    <h1>Reportes</h1>
+    <p class="page-subtitle">Indicadores de uso y estado de la biblioteca</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle tabla-datos">
+      <thead><tr><th>Reporte</th><th>Requerimiento</th><th class="text-end">Acciones</th></tr></thead>
+      <tbody>
+        {% for clave, nombre, rf in reportes %}
+        <tr>
+          <td class="fw-semibold celda-principal" data-label="Reporte">{{ nombre }}</td>
+          <td data-label="Requerimiento"><span class="badge text-bg-light border">{{ rf }}</span></td>
+          <td class="text-end celda-acciones"><a class="btn btn-sm btn-outline-primary" href="{{ url_for('reportes.ver', clave=clave) }}">{{ icono('reporte') }} Ver reporte</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

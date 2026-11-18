@@ -1,15 +1,71 @@
 {% extends "base.html" %}
+{% from "_macros.html" import icono with context %}
 {% block contenido %}
-<h1>Inicio</h1>
-<div class="tarjetas">
-<div class="tarjeta"><b>{{ total_trabajos }}</b>Trabajos registrados</div>
-<div class="tarjeta"><b>{{ vigentes }}</b>Préstamos vigentes</div>
-<div class="tarjeta rojo"><b>{{ vencidos }}</b>Devoluciones vencidas</div>
-<div class="tarjeta"><b>{{ recientes }}</b>Ingresos de este año</div>
+<div class="page-header">
+  <div>
+    <h1>Inicio</h1>
+    <p class="page-subtitle">Resumen general de la biblioteca</p>
+  </div>
 </div>
-<h2>Accesos rápidos</h2>
-{% if puede_editar %}<a class="btn" href="{{ url_for('trabajos.nuevo') }}">Registrar trabajo</a>{% endif %}
-<a class="btn" href="{{ url_for('trabajos.lista') }}">Buscar trabajo</a>
-{% if puede_editar %}<a class="btn" href="{{ url_for('prestamos.nuevo') }}">Registrar préstamo</a>{% endif %}
-<a class="btn" href="{{ url_for('reportes.indice') }}">Ver reportes</a>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card stat-card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <span class="stat-icon text-bg-primary">{{ icono('libro') }}</span>
+        <div>
+          <div class="stat-value">{{ total_trabajos }}</div>
+          <div class="stat-label">Trabajos registrados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card stat-card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <span class="stat-icon text-bg-success">{{ icono('prestamo') }}</span>
+        <div>
+          <div class="stat-value">{{ vigentes }}</div>
+          <div class="stat-label">Préstamos vigentes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card stat-card stat-card-danger h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <span class="stat-icon text-bg-danger">{{ icono('reloj') }}</span>
+        <div>
+          <div class="stat-value">{{ vencidos }}</div>
+          <div class="stat-label">Devoluciones vencidas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card stat-card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <span class="stat-icon text-bg-warning">{{ icono('check') }}</span>
+        <div>
+          <div class="stat-value">{{ recientes }}</div>
+          <div class="stat-label">Ingresos de este año</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header card-header-institucional">
+    <h2 class="h5 mb-0">Accesos rápidos</h2>
+  </div>
+  <div class="card-body">
+    <div class="page-actions">
+      {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar trabajo</a>{% endif %}
+      <a class="btn btn-outline-primary" href="{{ url_for('trabajos.lista') }}">{{ icono('buscar') }} Buscar trabajo</a>
+      {% if puede_editar %}<a class="btn btn-outline-primary" href="{{ url_for('prestamos.nuevo') }}">{{ icono('prestamo') }} Registrar préstamo</a>{% endif %}
+      <a class="btn btn-outline-secondary" href="{{ url_for('reportes.indice') }}">{{ icono('reportes') }} Ver reportes</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,22 +1,68 @@
 {% extends "base.html" %}
-{% from "_macros.html" import campo, lista, csrf with context %}
+{% from "_macros.html" import campo, lista, csrf, icono with context %}
 {% block contenido %}
-<h1>{{ titulo }}</h1>
-<form method="post">{{ csrf() }}
-{{ campo('titulo', 'Título', f, errores, requerido=True) }}
-<div class="fila">{{ campo('gestion', 'Gestión (año)', f, errores, 'number', requerido=True) }}
-{{ lista('modalidad', 'Modalidad', MODALIDADES, f, errores) }}
-{{ campo('fecha_recepcion', 'Fecha de recepción', f, errores, 'date') }}</div>
-{{ campo('autores', 'Autor(es) (separados por punto y coma)', f, errores, requerido=True) }}
-<div class="fila">{{ campo('tutor_nombre', 'Tutor', f, errores) }}
-<div><label for="id_area">Área temática</label><select name="id_area" id="id_area"><option value="">— seleccione —</option>
-{% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if f.get('id_area')|string == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}</select></div>
-{{ campo('area_nueva', '…o escriba un área nueva', f, errores) }}</div>
-{% if not editar %}<div class="fila">{{ campo('num_ejemplares', 'N.º de ejemplares', f, errores, 'number') }}
-{{ campo('ubicacion', 'Ubicación (estante o sección)', f, errores, requerido=True) }}</div>{% endif %}
-<label><input type="checkbox" name="cd_entregado" {{ 'checked' if f.get('cd_entregado') }}> CD entregado</label>
-<label><input type="checkbox" name="autoriza_publicacion" {{ 'checked' if f.get('autoriza_publicacion') }}> Autorización de publicación firmada</label>
-<label for="resumen">Resumen</label><textarea name="resumen" id="resumen" rows="4">{{ f.get('resumen','') }}</textarea>
-<button class="btn" type="submit">Guardar</button><a class="btn g" href="{{ url_for('trabajos.lista') }}">Cancelar</a>
-</form>
+<div class="page-header">
+  <div>
+    <h1>{{ titulo }}</h1>
+    <p class="page-subtitle">Complete los datos bibliográficos del trabajo de grado</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-4">
+    <form method="post">{{ csrf() }}
+      {{ campo('titulo', 'Título', f, errores, requerido=True) }}
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">{{ campo('gestion', 'Gestión (año)', f, errores, 'number', requerido=True) }}</div>
+        <div class="col-12 col-md-4">{{ lista('modalidad', 'Modalidad', MODALIDADES, f, errores) }}</div>
+        <div class="col-12 col-md-4">{{ campo('fecha_recepcion', 'Fecha de recepción', f, errores, 'date') }}</div>
+      </div>
+
+      {{ campo('autores', 'Autor(es)', f, errores, requerido=True, ayuda='Separe varios autores con punto y coma (;).') }}
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">{{ campo('tutor_nombre', 'Tutor', f, errores) }}</div>
+        <div class="col-12 col-md-4">
+          <div class="mb-3">
+            <label class="form-label" for="id_area">Área temática</label>
+            <select class="form-select" name="id_area" id="id_area">
+              <option value="">— Seleccione —</option>
+              {% for a in areas %}<option value="{{ a.id_area }}" {{ 'selected' if f.get('id_area')|string == a.id_area|string }}>{{ a.nombre }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">{{ campo('area_nueva', '…o escriba un área nueva', f, errores) }}</div>
+      </div>
+
+      {% if not editar %}
+      <div class="row g-3">
+        <div class="col-12 col-md-4">{{ campo('num_ejemplares', 'N.º de ejemplares', f, errores, 'number') }}</div>
+        <div class="col-12 col-md-8">{{ campo('ubicacion', 'Ubicación (estante o sección)', f, errores, requerido=True) }}</div>
+      </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" name="cd_entregado" id="cd_entregado" {{ 'checked' if f.get('cd_entregado') }}>
+          <label class="form-check-label" for="cd_entregado">CD entregado</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="autoriza_publicacion" id="autoriza_publicacion" {{ 'checked' if f.get('autoriza_publicacion') }}>
+          <label class="form-check-label" for="autoriza_publicacion">Autorización de publicación firmada</label>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="resumen">Resumen</label>
+        <textarea class="form-control" name="resumen" id="resumen" rows="4">{{ f.get('resumen','') }}</textarea>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="submit">{{ icono('check') }} Guardar</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('trabajos.lista') }}">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

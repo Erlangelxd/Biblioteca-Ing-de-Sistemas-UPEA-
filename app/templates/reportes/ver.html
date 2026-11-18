@@ -1,22 +1,96 @@
 {% extends "base.html" %}
+{% from "_macros.html" import icono with context %}
 {% block contenido %}
-<div class="enc"><h3>UNIVERSIDAD PÚBLICA DE EL ALTO</h3><div>Biblioteca Especializada de Ingeniería de Sistemas</div>
-<h3 style="margin-top:14px">{{ titulo|upper }}</h3>
-<div>Fecha de emisión: {{ hoy.strftime('%d/%m/%Y') }} &nbsp;|&nbsp; Emitido por: {{ usuario.nombre_usuario }}</div></div>
-{% if filtro_fechas %}<form method="get" class="fila noprint" style="align-items:end">
-<div><label>Desde</label><input type="date" name="desde" value="{{ desde }}"></div><div><label>Hasta</label><input type="date" name="hasta" value="{{ hasta }}"></div>
-<div><button class="btn" type="submit">Filtrar</button></div></form>{% endif %}
-{% if filtro_q %}<form method="get" class="fila noprint" style="align-items:end">
-<div><label>Solicitante (nombre, CI o matrícula)</label><input name="q" value="{{ q }}"></div><div><button class="btn" type="submit">Filtrar</button></div></form>{% endif %}
-<div class="tabla-responsive"><table>
-<tr>{% for c in columnas %}<th>{{ c }}</th>{% endfor %}</tr>
-{% for fila in filas %}<tr>{% for celda in fila %}<td>{{ celda }}</td>{% endfor %}</tr>
-{% else %}<tr><td colspan="{{ columnas|length }}">Sin datos para mostrar.</td></tr>{% endfor %}
-</table></div>
-{% if barras %}<h2>Gráfico</h2>
-{% for etiqueta, valor, porcentaje in barras %}<div>{{ etiqueta }}</div><div class="barra"><span style="width:{{ [porcentaje, 6]|max }}%">{{ valor }}</span></div>{% endfor %}{% endif %}
-<div class="pie">{{ total }}</div>
-<p class="noprint"><button class="btn" onclick="window.print()">Imprimir / guardar en PDF</button>
-<a class="btn g" href="{{ url_for('reportes.ver', clave=clave, formato='csv', **request.args) }}">Descargar CSV</a>
-<a class="btn g" href="{{ url_for('reportes.indice') }}">Volver</a></p>
+<div class="card reporte-enc mb-4">
+  <div class="card-body py-4">
+    <img class="reporte-logo mb-2" src="{{ url_for('static', filename='institucion_logo-1782624629016-599128352.png') }}" alt="Escudo de Ingeniería de Sistemas — UPEA">
+    <h3>UNIVERSIDAD PÚBLICA DE EL ALTO</h3>
+    <div class="reporte-sub">Biblioteca Especializada de Ingeniería de Sistemas</div>
+    <div class="reporte-titulo">{{ titulo|upper }}</div>
+    <div class="reporte-sub mt-1">Fecha de emisión: {{ hoy.strftime('%d/%m/%Y') }} &nbsp;·&nbsp; Emitido por: {{ usuario.nombre_usuario }}</div>
+  </div>
+</div>
+
+{% if filtro_fechas %}
+<div class="card filter-card mb-4 noprint">
+  <div class="card-body">
+    <form method="get">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-sm-5 col-md-4">
+          <label class="form-label" for="desde">Desde</label>
+          <input class="form-control" type="date" name="desde" id="desde" value="{{ desde }}">
+        </div>
+        <div class="col-12 col-sm-5 col-md-4">
+          <label class="form-label" for="hasta">Hasta</label>
+          <input class="form-control" type="date" name="hasta" id="hasta" value="{{ hasta }}">
+        </div>
+        <div class="col-12 col-sm-2 col-md-2">
+          <button class="btn btn-primary w-100" type="submit">{{ icono('buscar') }} Filtrar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% if filtro_q %}
+<div class="card filter-card mb-4 noprint">
+  <div class="card-body">
+    <form method="get">
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-8">
+          <label class="form-label" for="q">Solicitante (nombre, CI o matrícula)</label>
+          <input class="form-control" name="q" id="q" value="{{ q }}">
+        </div>
+        <div class="col-12 col-md-3">
+          <button class="btn btn-primary w-100" type="submit">{{ icono('buscar') }} Filtrar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead><tr>{% for c in columnas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for fila in filas %}
+        <tr>{% for celda in fila %}<td>{{ celda }}</td>{% endfor %}</tr>
+        {% else %}
+        <tr><td colspan="{{ columnas|length }}"><div class="empty-state">Sin datos para mostrar.</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if barras %}
+<div class="card mb-4">
+  <div class="card-header"><h2 class="h6 mb-0">{{ icono('reportes') }} Gráfico</h2></div>
+  <div class="card-body">
+    {% for etiqueta, valor, porcentaje in barras %}
+    <div class="mb-3">
+      <div class="d-flex justify-content-between gap-3 small mb-1">
+        <span class="text-truncate">{{ etiqueta }}</span>
+        <span class="fw-semibold">{{ valor }}</span>
+      </div>
+      <div class="progress" role="progressbar" aria-label="{{ etiqueta }}" aria-valuenow="{{ porcentaje }}" aria-valuemin="0" aria-valuemax="100" style="height: 1rem;">
+        <div class="progress-bar" style="width: {{ [porcentaje, 6]|max }}%">{{ valor }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <span class="text-muted small">{{ total }}</span>
+  <div class="page-actions noprint">
+    <button class="btn btn-primary" type="button" onclick="window.print()">{{ icono('imprimir') }} Imprimir / PDF</button>
+    <a class="btn btn-outline-primary" href="{{ url_for('reportes.ver', clave=clave, formato='csv', **request.args) }}">{{ icono('descargar') }} Descargar CSV</a>
+    <a class="btn btn-outline-secondary" href="{{ url_for('reportes.indice') }}">{{ icono('volver') }} Volver</a>
+  </div>
+</div>
 {% endblock %}
