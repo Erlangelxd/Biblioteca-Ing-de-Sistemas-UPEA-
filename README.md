@@ -29,8 +29,10 @@ Implementación en **Flask** del diseño del Capítulo III del proyecto. Arquite
 
 ## 1. Características principales
 
-- Registro de trabajos de grado (tesis, proyecto de grado, trabajo dirigido) con autores, tutor, área temática y ejemplares.
-- Baja lógica de trabajos, conservando el historial de préstamos.
+- Registro de material bibliográfico: libros y trabajos de grado (tesis, proyecto de grado, trabajo dirigido) con autores, tutor, área temática y ejemplares.
+- Modalidad **Libro** con ejemplares prestables y búsqueda dentro del mismo catálogo.
+- Carga opcional de 12 libros famosos de desarrollo de software con `seed-libros`.
+- Baja lógica de material, conservando el historial de préstamos.
 - Catálogo con búsqueda por título, autor, área, gestión y modalidad, **sin distinguir tildes ni mayúsculas**.
 - Gestión de solicitantes (estudiantes y docentes) por CI o matrícula.
 - Préstamos **internos** (consulta en sala) y **externos** (a domicilio), con devoluciones, renovaciones y alertas de retraso.
@@ -51,7 +53,7 @@ Implementación en **Flask** del diseño del Capítulo III del proyecto. Arquite
 | ORM | Flask-SQLAlchemy `>=3.1,<4` sobre SQLAlchemy `>=2.0,<3` |
 | Arquitectura | Monolito modular: fábrica de aplicación, blueprints, servicios y modelos |
 | Frontend | Plantillas Jinja2, Bootstrap 5.3.3 local y CSS institucional (`app/static/estilos.css`) |
-| Pruebas | `unittest` (28 pruebas) |
+| Pruebas | `unittest` (30 pruebas) |
 
 Dependencias: `Flask`, `Flask-SQLAlchemy` y `SQLAlchemy` (ver [`requirements.txt`](requirements.txt)).
 
@@ -112,10 +114,14 @@ Constantes fijas en `app/config.py`: 5 intentos fallidos y 5 minutos de bloqueo,
 |---|---|
 | `flask --app wsgi init-db` | Crea las tablas. |
 | `flask --app wsgi crear-usuario <nombre> [--rol administrador\|consulta]` | Crea un usuario (pide la contraseña). |
-| `flask --app wsgi seed-demo` | Carga datos ficticios de demostración. **No usar en producción.** |
+| `flask --app wsgi migrar-db` | Actualiza una base existente para admitir la modalidad «Libro». |
+| `flask --app wsgi seed-demo` | Carga datos ficticios y los libros de referencia. **No usar en producción.** |
+| `flask --app wsgi seed-libros` | Carga solo los libros de referencia, sin borrar datos existentes. |
 | `flask --app wsgi backup [--destino CARPETA]` | Copia de seguridad consistente de la base. |
 | `python run.py` | Servidor de desarrollo. |
 | `python -m unittest discover -s tests -v` | Ejecuta las pruebas. |
+
+> Si la base ya contiene datos, ejecute primero `flask --app wsgi migrar-db` y luego `flask --app wsgi seed-libros`. La migración conserva los registros existentes.
 
 ### Usuarios de demostración (`seed-demo`)
 
@@ -200,7 +206,7 @@ Todos los reportes se sirven en `/reportes/<clave>`, permiten **imprimir / guard
 | Catálogo público sin datos personales | `/catalogo` | P |
 | Cambio de contraseña propia | `/clave` | A, C |
 | Índice de reportes | `/reportes/` | A, C |
-| Comandos CLI `init-db`, `crear-usuario`, `seed-demo`, `backup` | — | Consola |
+| Comandos CLI `init-db`, `migrar-db`, `crear-usuario`, `seed-demo`, `seed-libros`, `backup` | — | Consola |
 
 ---
 
@@ -399,8 +405,9 @@ biblioteca_flask/
 │   ├── seguridad.py             # sesión, roles, CSRF y bloqueo por intentos
 │   ├── validacion.py            # validación de formularios
 │   ├── utilidades.py            # paginación, estado de trabajos y filtros de plantilla
-│   ├── cli.py                   # comandos init-db, crear-usuario, seed-demo, backup
-│   ├── seed.py                  # datos ficticios de demostración
+│   ├── cli.py                   # comandos init-db, migrar-db, seed-libros y backup
+│   ├── migraciones.py           # actualización de esquemas SQLite existentes
+│   ├── seed.py                  # datos ficticios y libros de referencia
 │   ├── domain/
 │   │   └── builders.py          # patrón Builder: TrabajoGradoBuilder
 │   ├── models/                  # entidades ORM
@@ -430,7 +437,7 @@ biblioteca_flask/
 │       └── institucion_logo-*.png
 ├── docs/                        # documentación del Capítulo III y diagramas
 ├── instance/                    # base de datos, clave secreta y respaldos (no versionar)
-├── tests/test_app.py            # 28 pruebas automáticas
+├── tests/test_app.py            # 30 pruebas automáticas
 ├── run.py                       # servidor de desarrollo
 ├── wsgi.py                      # punto de entrada para producción
 ├── requirements.txt
@@ -492,7 +499,8 @@ También funciona con cualquier servidor WSGI (gunicorn, waitress, etc.) apuntan
 ## 15. Advertencias y limitaciones
 
 - **Reglas supuestas**: 7 días de préstamo externo, máximo 2 externos y 1 renovación. Confirmarlas con la encargada antes de usar el sistema en producción.
-- **`seed-demo`** crea usuarios con contraseñas conocidas. No usarlo en un servidor público; crear usuarios reales con `crear-usuario`.
+- **`seed-demo`** crea usuarios con contraseñas conocidas. No usarlo en un servidor público; crear usuarios reales con `crear-usuario`. **`seed-libros`** solo agrega libros de referencia y no crea usuarios.
+- **Actualización**: si la base se creó antes de existir la modalidad «Libro», ejecutar `flask --app wsgi migrar-db` una vez.
 - **En internet**: usar HTTPS, `COOKIE_SEGURA=1`, `SECRET_KEY` propia y `FLASK_DEBUG` apagado.
 - **SQLite** es suficiente para el volumen de una biblioteca de carrera; para varios cientos de usuarios simultáneos convendría PostgreSQL o MySQL.
 - **Respaldos**: la base es un solo archivo; programar copias periódicas.
@@ -511,3 +519,4 @@ También funciona con cualquier servidor WSGI (gunicorn, waitress, etc.) apuntan
 | [`docs/05_observaciones.md`](docs/05_observaciones.md) | Diferencias con el documento, reglas por confirmar y advertencias |
 
 **Diagramas:** [`diagrama_er.png`](docs/img/diagrama_er.png) · [`casos_de_uso.png`](docs/img/casos_de_uso.png) · [`dependencias_prestamo.png`](docs/img/dependencias_prestamo.png) · [`arquitectura_internet.png`](docs/img/arquitectura_internet.png)
+# Biblioteca-Ing-de-Sistemas-UPEA-
