@@ -8,10 +8,10 @@ Correspondencia entre los requisitos del Capítulo III, la ruta, el módulo y la
 |---|---|---|---|---|---|
 | RF01 | Iniciar / cerrar sesión | `/login`, `/logout` | `blueprints/auth/` | A, C | test_login_correcto_e_incorrecto, test_bloqueo_por_intentos |
 | RF02 | Gestionar usuarios y roles | `/usuarios`, `/usuarios/nuevo`, `/usuarios/<id>/editar`, `/usuarios/<id>/estado` | `blueprints/auth/`, `services/usuarios.py` | A | test_crear_desactivar_usuario |
-| RF03 | Registrar trabajo de grado con autores, tutor, área y ejemplares | `/trabajos/nuevo` | `blueprints/trabajos/`, `services/trabajos.py`, `domain/builders.py` | A | test_registro_con_ejemplares_sin_duplicados |
-| RF04 | Modificar y dar de baja un trabajo | `/trabajos/<id>/editar`, `/trabajos/<id>/baja` | `blueprints/trabajos/`, `services/trabajos.py` | A | test_modificar_y_baja, test_no_baja_con_prestamo_vigente |
-| RF05 | Agregar ejemplares | `/trabajos/<id>/ejemplar` | `blueprints/trabajos/`, `services/trabajos.py` | A | test_registro_con_ejemplares_sin_duplicados |
-| RF06 | Buscar y filtrar trabajos (título, autor, área, gestión, modalidad) sin importar tildes | `/trabajos/` | `blueprints/trabajos/`, `services/trabajos.py`, `utilidades.py` | A, C | test_busqueda_sin_tildes_ni_mayusculas |
+| RF03 | Registrar material bibliográfico (libro o trabajo de grado) con autores, tutor, área y ejemplares | `/trabajos/nuevo` | `blueprints/trabajos/`, `services/trabajos.py`, `domain/builders.py` | A | test_registro_con_ejemplares_sin_duplicados, test_seed_libros_y_catalogo |
+| RF04 | Modificar y dar de baja un material | `/trabajos/<id>/editar`, `/trabajos/<id>/baja` | `blueprints/trabajos/`, `services/trabajos.py` | A | test_modificar_y_baja, test_no_baja_con_prestamo_vigente |
+| RF05 | Agregar ejemplares (código `LIB-` para libros, `TG-` para trabajos) | `/trabajos/<id>/ejemplar` | `blueprints/trabajos/`, `services/trabajos.py` | A | test_registro_con_ejemplares_sin_duplicados |
+| RF06 | Buscar y filtrar material (título, autor, área, gestión, modalidad) sin importar tildes | `/trabajos/` | `blueprints/trabajos/`, `services/trabajos.py`, `utilidades.py` | A, C | test_busqueda_sin_tildes_ni_mayusculas |
 | RF07 | Ver ficha y estado (disponibilidad) | `/trabajos/<id>` | `blueprints/trabajos/` | A, C | test_seed_y_pantallas |
 | RF08 | Registrar solicitantes | `/solicitantes/nuevo`, `/<id>/editar` | `blueprints/solicitantes/`, `services/solicitantes.py` | A | test_solicitante_inexistente |
 | RF09 | Registrar préstamo interno o externo | `/prestamos/nuevo` | `blueprints/prestamos/`, `services/prestamos.py` | A | test_flujo_prestamo_y_devolucion, test_no_presta_ejemplar_no_disponible, test_limite_de_prestamos_externos, test_prestamo_interno_misma_fecha |

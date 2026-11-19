@@ -69,10 +69,11 @@ class TrabajoGradoBuilder:
 
     def crear_ejemplares(self, id_trabajo: int) -> list[Ejemplar]:
         """Genera los ejemplares una vez que el trabajo tiene identificador."""
+        prefijo = "LIB" if self._modalidad == "libro" else "TG"
         return [
             Ejemplar(
                 id_trabajo=id_trabajo,
-                codigo=f"TG-{id_trabajo:04d}-{numero}",
+                codigo=f"{prefijo}-{id_trabajo:04d}-{numero}",
                 ubicacion=self._ubicacion[:60],
             )
             for numero in range(1, self._num_ejemplares + 1)

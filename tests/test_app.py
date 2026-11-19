@@ -1,5 +1,6 @@
 """Pruebas automáticas:  python -m unittest discover -s tests -v"""
 import os
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -7,11 +8,13 @@ from datetime import date, timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 
 from app import create_app, seguridad
 from app.extensions import db
+from app.migraciones import migrar_modalidad_libro
 from app.models import AreaTematica, Autor, Ejemplar, Prestamo, Solicitante, TrabajoGrado
+from app.seed import LIBROS
 from app.services import crear_usuario
 from app.services.reportes import REPORTES
 
@@ -372,6 +375,111 @@ class DatosDemoTests(unittest.TestCase):
                 self.assertEqual(c.get(url).status_code, 200, url)
             out = runner.invoke(args=["backup", "--destino", tempfile.mkdtemp()]).output
             self.assertIn("Respaldo creado", out)
+        finally:
+            os.unlink(tmp.name)
+
+    def test_seed_libros_y_catalogo(self):
+        tmp = tempfile.NamedTemporaryFile(suffix=".sqlite3", delete=False)
+        tmp.close()
+        try:
+            app = create_app("testing", {"SQLALCHEMY_DATABASE_URI": "sqlite:///" + tmp.name})
+            runner = app.test_cli_runner()
+            self.assertEqual(runner.invoke(args=["init-db"]).exit_code, 0)
+
+            salida = runner.invoke(args=["seed-libros"]).output
+            self.assertIn("Libros de ejemplo cargados", salida)
+            self.assertIn("ya estaban", runner.invoke(args=["seed-libros"]).output)
+
+            with app.app_context():
+                libros = db.session.scalar(
+                    select(func.count())
+                    .select_from(TrabajoGrado)
+                    .where(TrabajoGrado.modalidad == "libro")
+                )
+                self.assertEqual(libros, len(LIBROS))
+                ejemplares = db.session.scalar(
+                    select(func.count())
+                    .select_from(Ejemplar)
+                    .join(TrabajoGrado)
+                    .where(TrabajoGrado.modalidad == "libro")
+                )
+                self.assertEqual(ejemplares, sum(libro["cantidad"] for libro in LIBROS))
+
+            r = app.test_client().get("/catalogo?q=clean+code")
+            self.assertEqual(r.status_code, 200)
+            self.assertIn(b"Clean Code", r.data)
+            self.assertIn(b"Ingenier\xc3\xada de software", r.data)
+        finally:
+            os.unlink(tmp.name)
+
+
+class MigracionTests(unittest.TestCase):
+    def test_migra_esquema_antiguo_conservando_datos(self):
+        tmp = tempfile.NamedTemporaryFile(suffix=".sqlite3", delete=False)
+        tmp.close()
+        try:
+            con = sqlite3.connect(tmp.name)
+            con.executescript(
+                """
+                CREATE TABLE trabajo_grado (
+                    id_trabajo INTEGER NOT NULL PRIMARY KEY,
+                    titulo VARCHAR(250) NOT NULL,
+                    resumen TEXT NOT NULL,
+                    gestion INTEGER NOT NULL,
+                    modalidad VARCHAR(20) NOT NULL,
+                    fecha_recepcion VARCHAR(10) NOT NULL,
+                    cd_entregado BOOLEAN NOT NULL,
+                    autoriza_publicacion BOOLEAN NOT NULL,
+                    activo BOOLEAN NOT NULL,
+                    id_area INTEGER,
+                    id_tutor INTEGER,
+                    CONSTRAINT ck_trabajo_modalidad
+                        CHECK (modalidad IN ('tesis','proyecto','dirigido'))
+                );
+                CREATE UNIQUE INDEX ux_trabajo_titulo_gestion
+                    ON trabajo_grado (lower(titulo), gestion);
+                INSERT INTO trabajo_grado (
+                    id_trabajo, titulo, resumen, gestion, modalidad,
+                    fecha_recepcion, cd_entregado, autoriza_publicacion, activo
+                ) VALUES (
+                    1, 'Trabajo anterior', '', 2024, 'tesis',
+                    '2024-01-01', 1, 1, 1
+                );
+                """
+            )
+            con.commit()
+            con.close()
+
+            self.assertTrue(migrar_modalidad_libro(tmp.name))
+            self.assertFalse(migrar_modalidad_libro(tmp.name))  # idempotente
+
+            con = sqlite3.connect(tmp.name)
+            try:
+                self.assertEqual(
+                    con.execute("SELECT count(*) FROM trabajo_grado").fetchone()[0], 1
+                )
+                con.execute(
+                    "INSERT INTO trabajo_grado ("
+                    "id_trabajo, titulo, resumen, gestion, modalidad, "
+                    "fecha_recepcion, cd_entregado, autoriza_publicacion, activo"
+                    ") VALUES (2, 'Clean Code', '', 2008, 'libro', '2024-01-01', 0, 1, 1)"
+                )
+                con.commit()
+                self.assertEqual(
+                    con.execute(
+                        "SELECT count(*) FROM trabajo_grado WHERE modalidad = 'libro'"
+                    ).fetchone()[0],
+                    1,
+                )
+                self.assertEqual(
+                    con.execute(
+                        "SELECT count(*) FROM sqlite_master "
+                        "WHERE type='index' AND name='ux_trabajo_titulo_gestion'"
+                    ).fetchone()[0],
+                    1,
+                )
+            finally:
+                con.close()
         finally:
             os.unlink(tmp.name)
 

@@ -19,7 +19,7 @@ class TrabajoGrado(db.Model):
     __table_args__ = (
         CheckConstraint("length(titulo) <= 250", name="ck_trabajo_titulo"),
         CheckConstraint("gestion BETWEEN 1980 AND 2100", name="ck_trabajo_gestion"),
-        CheckConstraint("modalidad IN ('tesis','proyecto','dirigido')", name="ck_trabajo_modalidad"),
+        CheckConstraint("modalidad IN ('tesis','proyecto','dirigido','libro')", name="ck_trabajo_modalidad"),
         CheckConstraint("cd_entregado IN (0,1)", name="ck_trabajo_cd"),
         CheckConstraint("autoriza_publicacion IN (0,1)", name="ck_trabajo_publicacion"),
         CheckConstraint("activo IN (0,1)", name="ck_trabajo_activo"),

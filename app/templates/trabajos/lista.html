@@ -3,10 +3,10 @@
 {% block contenido %}
 <div class="page-header">
   <div>
-    <h1>Trabajos de grado</h1>
-    <p class="page-subtitle">Consulta, filtra y administra el fondo bibliográfico</p>
+    <h1>Material bibliográfico</h1>
+    <p class="page-subtitle">Libros, tesis, proyectos de grado y trabajos dirigidos</p>
   </div>
-  {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar trabajo</a>{% endif %}
+  {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar material</a>{% endif %}
 </div>
 
 <div class="card filter-card mb-4">
@@ -83,7 +83,7 @@
           <td data-label="Estado">{{ badge_estado(t.estado[0], t.estado[1]) }}</td>
         </tr>
         {% else %}
-        <tr><td colspan="6"><div class="empty-state">{{ icono('libro') }} No se encontraron trabajos con esos criterios.</div></td></tr>
+        <tr><td colspan="6"><div class="empty-state">{{ icono('libro') }} No se encontró material con esos criterios.</div></td></tr>
         {% endfor %}
       </tbody>
     </table>

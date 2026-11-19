@@ -14,7 +14,7 @@
       <div class="card-body p-4">
         <form method="post">{{ csrf() }}
           <div class="mb-3">
-            <label class="form-label" for="id_ejemplar">Trabajo (ejemplar disponible) <span class="text-danger" aria-hidden="true">*</span></label>
+            <label class="form-label" for="id_ejemplar">Material (ejemplar disponible) <span class="text-danger" aria-hidden="true">*</span></label>
             <select class="form-select" name="id_ejemplar" id="id_ejemplar" required>
               <option value="">— Seleccione un ejemplar —</option>
               {% for e in ejemplares %}<option value="{{ e.id_ejemplar }}" {{ 'selected' if f.get('id_ejemplar')|string == e.id_ejemplar|string }}>{{ e.codigo }} – {{ e.trabajo.titulo }} ({{ e.ubicacion }})</option>{% endfor %}

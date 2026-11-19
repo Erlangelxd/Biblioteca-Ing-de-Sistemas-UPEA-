@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% from "_macros.html" import icono, paginas, badge_estado with context %}
-{% block titulo %}Catálogo de trabajos de grado — Biblioteca de Ingeniería de Sistemas{% endblock %}
+{% block titulo %}Catálogo bibliográfico — Biblioteca de Ingeniería de Sistemas{% endblock %}
 {% block contenido %}
 <div class="catalog-hero mb-4">
   <div class="position-relative">
     <span class="badge text-bg-light text-primary mb-2">Consulta pública</span>
-    <h1 class="mb-2">Catálogo de trabajos de grado</h1>
-    <p class="mb-0">Consulte si un trabajo está en la biblioteca y dónde encontrarlo. Para solicitarlo, acuda a la encargada con su CI o matrícula.</p>
+    <h1 class="mb-2">Catálogo bibliográfico</h1>
+    <p class="mb-0">Consulte libros y trabajos de grado disponibles en la biblioteca y dónde encontrarlos. Para solicitarlos, acuda a la encargada con su CI o matrícula.</p>
   </div>
 </div>
 
@@ -58,7 +58,7 @@
 <div class="card">
   <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
     <h2 class="h6 mb-0">Resultados</h2>
-    <span class="text-muted small">{{ pag.total }} trabajo{{ 's' if pag.total != 1 else '' }} encontrado{{ 's' if pag.total != 1 else '' }}</span>
+    <span class="text-muted small">{{ pag.total }} registro{{ 's' if pag.total != 1 else '' }} encontrado{{ 's' if pag.total != 1 else '' }}</span>
   </div>
   <div class="table-responsive">
     <table class="table table-hover align-middle tabla-datos">
@@ -79,7 +79,7 @@
           <td data-label="Estado">{{ badge_estado(t.estado[0], t.estado[1]) }}</td>
         </tr>
         {% else %}
-        <tr><td colspan="6"><div class="empty-state">{{ icono('buscar') }} No se encontraron trabajos con esos criterios.</div></td></tr>
+        <tr><td colspan="6"><div class="empty-state">{{ icono('buscar') }} No se encontró material con esos criterios.</div></td></tr>
         {% endfor %}
       </tbody>
     </table>

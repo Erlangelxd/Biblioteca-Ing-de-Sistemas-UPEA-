@@ -1,7 +1,12 @@
 """Validación de los formularios. Cada función devuelve (datos, errores)."""
 from datetime import date
 
-MODALIDADES = {"tesis": "Tesis", "proyecto": "Proyecto de grado", "dirigido": "Trabajo dirigido"}
+MODALIDADES = {
+    "tesis": "Tesis",
+    "proyecto": "Proyecto de grado",
+    "dirigido": "Trabajo dirigido",
+    "libro": "Libro",
+}
 TIPOS_PRESTAMO = {"interno": "Interno (en sala)", "externo": "Externo (a domicilio)"}
 GARANTIAS = {"ci": "CI", "matricula": "Carnet de matrícula", "ninguna": "Ninguna"}
 TIPOS_SOLICITANTE = {"estudiante": "Estudiante", "docente": "Docente"}

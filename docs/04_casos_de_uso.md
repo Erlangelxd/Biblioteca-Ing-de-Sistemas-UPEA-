@@ -35,13 +35,13 @@ Todos los casos de uso, excepto **CU07**, requieren haber realizado **CU01 Inici
 
 **CU02 Gestionar usuarios y perfiles.** *Pre:* rol administrador. *Flujo:* lista usuarios → crea o edita (nombre, rol, clave) → guarda. *Alternos:* nombre repetido o clave débil → error; intentar desactivarse a sí mismo → rechazado. *Post:* usuario creado, editado o activado/desactivado.
 
-**CU03 Registrar trabajo de grado.** *Pre:* administrador con sesión. *Flujo:* completa título, resumen, gestión, modalidad, autores, tutor, área, CD, autorización y cantidad de ejemplares → el sistema valida → guarda trabajo, autores y ejemplares con código y estado disponible. *Alternos:* título y gestión ya existentes → rechazo; datos inválidos → se muestran los errores. *Post:* trabajo visible en el catálogo interno.
+**CU03 Registrar material bibliográfico.** *Pre:* administrador con sesión. *Flujo:* completa título, resumen, gestión, modalidad (tesis, proyecto, dirigido o libro), autores, tutor, área, CD, autorización y cantidad de ejemplares → el sistema valida → guarda el material, autores y ejemplares con código y estado disponible. *Alternos:* título y gestión ya existentes → rechazo; datos inválidos → se muestran los errores. *Post:* material visible en el catálogo interno.
 
-**CU04 Modificar o dar de baja.** *Pre:* trabajo existente. *Flujo:* edita datos → guarda; o pide baja → el sistema la registra (lógica) y marca ejemplares en baja. *Alterno:* si algún ejemplar tiene préstamo vigente, la baja se rechaza. *Post:* datos actualizados o trabajo inactivo.
+**CU04 Modificar o dar de baja.** *Pre:* material existente. *Flujo:* edita datos → guarda; o pide baja → el sistema la registra (lógica) y marca ejemplares en baja. *Alterno:* si algún ejemplar tiene préstamo vigente, la baja se rechaza. *Post:* datos actualizados o material inactivo.
 
 **CU05 Registrar solicitante.** *Flujo:* ingresa nombre, CI, matrícula, tipo, teléfono → guarda. *Alterno:* CI repetida → error. *Post:* solicitante disponible para préstamos.
 
-**CU06 Buscar trabajos y ver su estado.** *Flujo:* ingresa texto y filtros → el sistema lista resultados paginados → abre la ficha con ejemplares y disponibilidad. *Alterno:* sin resultados → mensaje. La búsqueda ignora tildes y mayúsculas.
+**CU06 Buscar material y ver su estado.** *Flujo:* ingresa texto y filtros (incluida la modalidad «Libro») → el sistema lista resultados paginados → abre la ficha con ejemplares y disponibilidad. *Alterno:* sin resultados → mensaje. La búsqueda ignora tildes y mayúsculas.
 
 **CU07 Consultar el catálogo público.** *Pre:* catálogo público activado. *Flujo:* el visitante busca y ve título, autores, gestión, área y disponibilidad. *Nota:* no muestra solicitantes ni préstamos; solo trabajos activos que autorizan publicación.
 

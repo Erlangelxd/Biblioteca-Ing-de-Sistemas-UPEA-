@@ -13,7 +13,7 @@
     <div class="comprobante-titulo">Comprobante de {{ 'consulta en sala' if p.tipo == 'interno' else 'préstamo a domicilio' }} N.º {{ '%05d' % p.id_prestamo }}</div>
 
     <dl class="row mb-0">
-      <dt class="col-sm-4">Trabajo</dt>
+      <dt class="col-sm-4">Material</dt>
       <dd class="col-sm-8">{{ p.ejemplar.trabajo.titulo }}</dd>
       <dt class="col-sm-4">Ejemplar / ubicación</dt>
       <dd class="col-sm-8">{{ p.ejemplar.codigo }} — {{ p.ejemplar.ubicacion }}</dd>

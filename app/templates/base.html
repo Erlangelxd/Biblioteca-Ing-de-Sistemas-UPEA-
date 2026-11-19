@@ -30,7 +30,7 @@
         {% if usuario %}
         <ul class="navbar-nav ms-auto mb-2 mb-xl-0">
           <li class="nav-item"><a class="nav-link{{ ' active' if endpoint == 'main.inicio' }}" href="{{ url_for('main.inicio') }}">{{ icono('inicio') }} <span>Inicio</span></a></li>
-          <li class="nav-item"><a class="nav-link{{ ' active' if endpoint.startswith('trabajos') }}" href="{{ url_for('trabajos.lista') }}">{{ icono('libro') }} <span>Trabajos</span></a></li>
+          <li class="nav-item"><a class="nav-link{{ ' active' if endpoint.startswith('trabajos') }}" href="{{ url_for('trabajos.lista') }}">{{ icono('libro') }} <span>Material</span></a></li>
           <li class="nav-item"><a class="nav-link{{ ' active' if endpoint.startswith('solicitantes') }}" href="{{ url_for('solicitantes.lista') }}">{{ icono('personas') }} <span>Solicitantes</span></a></li>
           <li class="nav-item"><a class="nav-link{{ ' active' if endpoint.startswith('prestamos') }}" href="{{ url_for('prestamos.lista') }}">{{ icono('prestamo') }} <span>Préstamos</span></a></li>
           <li class="nav-item"><a class="nav-link{{ ' active' if endpoint.startswith('reportes') }}" href="{{ url_for('reportes.indice') }}">{{ icono('reportes') }} <span>Reportes</span></a></li>

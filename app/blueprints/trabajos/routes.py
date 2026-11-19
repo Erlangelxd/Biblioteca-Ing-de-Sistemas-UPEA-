@@ -84,12 +84,12 @@ def nuevo():
         if not errores:
             try:
                 id_trabajo = registrar_trabajo(datos)
-                flash("Trabajo de grado registrado correctamente.", "success")
+                flash("Material registrado correctamente.", "success")
                 return redirect(url_for("trabajos.detalle", id_trabajo=id_trabajo))
             except ErrorNegocio as error:
                 errores["titulo"] = str(error)
-        return _form("Registrar trabajo de grado", request.form, errores, False)
-    return _form("Registrar trabajo de grado", {"num_ejemplares": 1, "modalidad": "proyecto"}, {}, False)
+        return _form("Registrar material bibliográfico", request.form, errores, False)
+    return _form("Registrar material bibliográfico", {"num_ejemplares": 1, "modalidad": "proyecto"}, {}, False)
 
 
 @bp.route("/<int:id_trabajo>/editar", methods=["GET", "POST"])
@@ -104,11 +104,11 @@ def editar(id_trabajo):
         if not errores:
             try:
                 modificar_trabajo(id_trabajo, datos)
-                flash("Datos del trabajo actualizados.", "success")
+                flash("Datos del material actualizados.", "success")
                 return redirect(url_for("trabajos.detalle", id_trabajo=id_trabajo))
             except ErrorNegocio as error:
                 errores["titulo"] = str(error)
-        return _form("Modificar trabajo de grado", request.form, errores, True, trabajo)
+        return _form("Modificar material bibliográfico", request.form, errores, True, trabajo)
 
     formulario = {
         "titulo": trabajo.titulo,
@@ -123,7 +123,7 @@ def editar(id_trabajo):
         "cd_entregado": trabajo.cd_entregado,
         "autoriza_publicacion": trabajo.autoriza_publicacion,
     }
-    return _form("Modificar trabajo de grado", formulario, {}, True, trabajo)
+    return _form("Modificar material bibliográfico", formulario, {}, True, trabajo)
 
 
 @bp.route("/<int:id_trabajo>/baja", methods=["POST"])

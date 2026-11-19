@@ -138,11 +138,12 @@ def agregar_ejemplar(id_trabajo, ubicacion):
 
     with transaccion():
         codigos = {e.codigo for e in trabajo.ejemplares}
+        prefijo = "LIB" if trabajo.modalidad == "libro" else "TG"
         numero = len(trabajo.ejemplares) + 1
-        while f"TG-{id_trabajo:04d}-{numero}" in codigos:
+        while f"{prefijo}-{id_trabajo:04d}-{numero}" in codigos:
             numero += 1
         trabajo.ejemplares.append(
-            Ejemplar(codigo=f"TG-{id_trabajo:04d}-{numero}", ubicacion=ubicacion[:60])
+            Ejemplar(codigo=f"{prefijo}-{id_trabajo:04d}-{numero}", ubicacion=ubicacion[:60])
         )
 
 

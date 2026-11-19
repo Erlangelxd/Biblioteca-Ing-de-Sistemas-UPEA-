@@ -49,7 +49,7 @@ Motor: **SQLite** (un solo archivo, `instance/biblioteca.sqlite3`). El esquema s
 | titulo | TEXT | NOT NULL (≤ 250) |
 | resumen | TEXT | NOT NULL, por defecto `''` |
 | gestion | INTEGER | NOT NULL, entre 1980 y 2100 |
-| modalidad | TEXT | NOT NULL: `tesis` \| `proyecto` \| `dirigido` |
+| modalidad | TEXT | NOT NULL: `tesis` \| `proyecto` \| `dirigido` \| `libro` |
 | fecha_recepcion | TEXT | NOT NULL, AAAA-MM-DD |
 | cd_entregado | INTEGER | NOT NULL, 0/1 |
 | autoriza_publicacion | INTEGER | NOT NULL, 0/1 |

@@ -7,12 +7,12 @@
       <h1 class="mb-0">{{ t.titulo }}</h1>
       {{ badge_estado(estado[0], estado[1]) }}
     </div>
-    <p class="page-subtitle">Ficha del trabajo de grado y sus ejemplares</p>
+    <p class="page-subtitle">Ficha del material bibliográfico y sus ejemplares</p>
   </div>
   {% if puede_editar and t.activo %}
   <div class="page-actions">
     <a class="btn btn-primary" href="{{ url_for('trabajos.editar', id_trabajo=t.id_trabajo) }}">{{ icono('editar') }} Modificar</a>
-    <form method="post" action="{{ url_for('trabajos.baja', id_trabajo=t.id_trabajo) }}" class="d-inline" onsubmit="return confirm('¿Dar de baja este trabajo? El historial se conserva.');">{{ csrf() }}
+    <form method="post" action="{{ url_for('trabajos.baja', id_trabajo=t.id_trabajo) }}" class="d-inline" onsubmit="return confirm('¿Dar de baja este material? El historial se conserva.');">{{ csrf() }}
       <button class="btn btn-outline-danger" type="submit">{{ icono('alerta') }} Dar de baja</button>
     </form>
   </div>
@@ -20,7 +20,7 @@
 </div>
 
 <div class="card mb-4">
-  <div class="card-header"><h2 class="h6 mb-0">{{ icono('libro') }} Datos del trabajo</h2></div>
+  <div class="card-header"><h2 class="h6 mb-0">{{ icono('libro') }} Datos del material</h2></div>
   <div class="card-body">
     <dl class="row mb-0">
       <dt class="col-sm-4 col-lg-3 text-muted">Autor(es)</dt>
@@ -109,6 +109,6 @@
 </div>
 
 <div class="page-actions">
-  <a class="btn btn-outline-secondary" href="{{ url_for('trabajos.lista') }}">{{ icono('volver') }} Volver a trabajos</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('trabajos.lista') }}">{{ icono('volver') }} Volver al catálogo</a>
 </div>
 {% endblock %}

@@ -15,7 +15,7 @@
         <span class="stat-icon text-bg-primary">{{ icono('libro') }}</span>
         <div>
           <div class="stat-value">{{ total_trabajos }}</div>
-          <div class="stat-label">Trabajos registrados</div>
+          <div class="stat-label">Material registrado</div>
         </div>
       </div>
     </div>
@@ -61,8 +61,8 @@
   </div>
   <div class="card-body">
     <div class="page-actions">
-      {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar trabajo</a>{% endif %}
-      <a class="btn btn-outline-primary" href="{{ url_for('trabajos.lista') }}">{{ icono('buscar') }} Buscar trabajo</a>
+      {% if puede_editar %}<a class="btn btn-primary" href="{{ url_for('trabajos.nuevo') }}">{{ icono('mas') }} Registrar material</a>{% endif %}
+      <a class="btn btn-outline-primary" href="{{ url_for('trabajos.lista') }}">{{ icono('buscar') }} Buscar material</a>
       {% if puede_editar %}<a class="btn btn-outline-primary" href="{{ url_for('prestamos.nuevo') }}">{{ icono('prestamo') }} Registrar préstamo</a>{% endif %}
       <a class="btn btn-outline-secondary" href="{{ url_for('reportes.indice') }}">{{ icono('reportes') }} Ver reportes</a>
     </div>
